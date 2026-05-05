@@ -1,4 +1,6 @@
 import { useBabyContext } from '../../context/BabyContext'
+import { useAuth } from '../../context/AuthContext'
+import { useNavigate } from 'react-router-dom'
 
 interface HeaderProps {
   onAddBaby: () => void
@@ -6,6 +8,8 @@ interface HeaderProps {
 
 export default function Header({ onAddBaby }: HeaderProps) {
   const { state, selectBaby, selectedBaby } = useBabyContext()
+  const { user } = useAuth()
+  const navigate = useNavigate()
 
   return (
     <header style={{
@@ -48,25 +52,47 @@ export default function Header({ onAddBaby }: HeaderProps) {
           </select>
         )}
 
-        <button
-          onClick={onAddBaby}
-          style={{
-            width: 36,
-            height: 36,
-            borderRadius: '50%',
-            background: 'var(--lilac-500)',
-            color: 'var(--white)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            fontSize: '1.3rem',
-            fontWeight: 700,
-            boxShadow: 'var(--shadow)',
-          }}
-          aria-label="Adicionar bebê"
-        >
-          +
-        </button>
+        <div style={{ display: 'flex', gap: 4 }}>
+          <button
+            onClick={onAddBaby}
+            style={{
+              width: 36,
+              height: 36,
+              borderRadius: '50%',
+              background: 'var(--lilac-500)',
+              color: 'var(--white)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: '1.2rem',
+              fontWeight: 400,
+              lineHeight: 1,
+              border: '2px solid var(--lilac-500)',
+              boxShadow: 'var(--shadow)',
+            }}
+            aria-label="Adicionar bebê"
+          >
+            ＋
+          </button>
+
+          <button
+            onClick={() => navigate(user ? '/profile' : '/login')}
+            style={{
+              width: 36,
+              height: 36,
+              borderRadius: '50%',
+              background: user ? 'var(--lilac-100)' : 'var(--white)',
+              border: '2px solid var(--lilac-300)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: '0.95rem',
+            }}
+            aria-label={user ? 'Perfil' : 'Entrar'}
+          >
+            {user ? '👤' : '🔐'}
+          </button>
+        </div>
       </div>
     </header>
   )

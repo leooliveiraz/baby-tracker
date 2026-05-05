@@ -9,6 +9,8 @@ import Activities from './pages/Activities'
 import Growth from './pages/Growth'
 import Health from './pages/Health'
 import Reports from './pages/Reports'
+import Login from './pages/Login'
+import Profile from './pages/Profile'
 
 export default function App() {
   return (
@@ -24,6 +26,8 @@ export default function App() {
           <Route path="/growth" element={<Growth />} />
           <Route path="/health" element={<Health />} />
           <Route path="/reports" element={<Reports />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/profile" element={<Profile />} />
         </Route>
       </Routes>
     </BrowserRouter>

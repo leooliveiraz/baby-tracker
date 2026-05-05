@@ -1,3 +1,72 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
-  <text y="80" font-size="80">🍼</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <!-- Fundo arredondado -->
+  <rect width="512" height="512" rx="80" ry="80" fill="#6C63FF"/>
+
+  <!-- Agenda / Calendário -->
+  <rect x="80" y="120" width="352" height="300" rx="24" ry="24" fill="#FFFFFF"/>
+  <rect x="80" y="120" width="352" height="80" rx="24" ry="24" fill="#4CAF50"/>
+  <!-- Corrigir cantos inferiores do cabeçalho -->
+  <rect x="80" y="160" width="352" height="40" fill="#4CAF50"/>
+
+  <!-- Argolas da agenda -->
+  <rect x="160" y="90" width="28" height="60" rx="14" fill="#2E7D32"/>
+  <rect x="324" y="90" width="28" height="60" rx="14" fill="#2E7D32"/>
+
+  <!-- Linhas da agenda -->
+  <rect x="110" y="240" width="292" height="12" rx="6" fill="#E0E0E0"/>
+  <rect x="110" y="272" width="220" height="12" rx="6" fill="#E0E0E0"/>
+  <rect x="110" y="304" width="260" height="12" rx="6" fill="#E0E0E0"/>
+  <rect x="110" y="336" width="180" height="12" rx="6" fill="#E0E0E0"/>
+
+  <!-- Texto no cabeçalho -->
+  <text x="256" y="175" text-anchor="middle" font-family="Arial, sans-serif"
+        font-size="32" font-weight="bold" fill="#FFFFFF">AGENDA</text>
+
+  <!-- === BEBEZINHO === -->
+
+  <!-- Corpo do bebê -->
+  <ellipse cx="256" cy="355" rx="52" ry="44" fill="#FFCC80"/>
+
+  <!-- Roupinha -->
+  <ellipse cx="256" cy="372" rx="52" ry="30" fill="#81D4FA"/>
+
+  <!-- Cabeça -->
+  <circle cx="256" cy="295" r="52" fill="#FFCC80"/>
+
+  <!-- Cabelo -->
+  <ellipse cx="256" cy="254" rx="38" ry="18" fill="#FF8A65"/>
+  <ellipse cx="222" cy="262" rx="16" ry="22" fill="#FF8A65"/>
+  <ellipse cx="290" cy="262" rx="16" ry="22" fill="#FF8A65"/>
+
+  <!-- Olhos -->
+  <circle cx="238" cy="292" r="8" fill="#333"/>
+  <circle cx="274" cy="292" r="8" fill="#333"/>
+  <!-- Brilho dos olhos -->
+  <circle cx="241" cy="289" r="3" fill="#FFFFFF"/>
+  <circle cx="277" cy="289" r="3" fill="#FFFFFF"/>
+
+  <!-- Bochechas -->
+  <circle cx="220" cy="308" r="10" fill="#FF8A65" opacity="0.6"/>
+  <circle cx="292" cy="308" r="10" fill="#FF8A65" opacity="0.6"/>
+
+  <!-- Nariz -->
+  <ellipse cx="256" cy="305" rx="5" ry="4" fill="#FFAA80"/>
+
+  <!-- Sorriso -->
+  <path d="M240 318 Q256 332 272 318" stroke="#333" stroke-width="4"
+        fill="none" stroke-linecap="round"/>
+
+  <!-- Orelhas -->
+  <circle cx="204" cy="295" r="14" fill="#FFCC80"/>
+  <circle cx="308" cy="295" r="14" fill="#FFCC80"/>
+
+  <!-- Bracinho esquerdo -->
+  <ellipse cx="196" cy="358" rx="16" ry="28" fill="#FFCC80" transform="rotate(-20 196 358)"/>
+
+  <!-- Bracinho direito -->
+  <ellipse cx="316" cy="358" rx="16" ry="28" fill="#FFCC80" transform="rotate(20 316 358)"/>
+
+  <!-- Estrelinha decorativa -->
+  <text x="370" y="140" font-size="36" fill="#FFD700">★</text>
+  <text x="106" y="140" font-size="24" fill="#FFD700">✦</text>
 </svg>

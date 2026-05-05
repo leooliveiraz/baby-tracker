@@ -1,5 +1,5 @@
 import { useBabyContext } from '../context/BabyContext'
-import { useRecords, getBabyRecords, type FeedingRecord, type DiaperRecord, type SleepRecord, type ActivityRecord, type GrowthRecord, type VaccineRecord } from '../context/RecordsContext'
+import { useRecords, getBabyRecords, type FeedingRecord, type DiaperRecord, type SleepRecord, type ActivityRecord, type GrowthRecord, type VaccineRecord, type AppointmentRecord } from '../context/RecordsContext'
 import { calculateAge, isToday, calcDuration } from '../utils/time'
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts'
 import { useNavigate } from 'react-router-dom'
@@ -37,6 +37,8 @@ export default function Dashboard() {
   const growthRecords = getBabyRecords<GrowthRecord>(records, selectedBaby.id, 'growth')
   const vaccineRecords = getBabyRecords<VaccineRecord>(records, selectedBaby.id, 'vaccine')
   const pendingVaccines = vaccineRecords.filter(v => v.status !== 'taken').length
+  const appointmentRecords = getBabyRecords<AppointmentRecord>(records, selectedBaby.id, 'appointment')
+  const upcomingAppointments = appointmentRecords.filter(r => new Date(r.appointmentDate) >= new Date()).length
 
   const completedSleep = sleepRecords.filter(r => r.endTime)
   const sleepMinutes = completedSleep.reduce((acc, r) => acc + calcDuration(r.startTime, r.endTime), 0)
@@ -70,21 +72,26 @@ export default function Dashboard() {
         <DashboardCard icon="🧸" label="Atividades" value={activityRecords.length} onClick={() => navigate('/activities')} />
       </div>
 
-      <div className="card" style={{ display: 'flex', gap: 8 }}>
-        <button onClick={() => navigate('/growth')} className="btn btn-outline" style={{ flex: 1, flexDirection: 'column', gap: 2, padding: 12 }}>
+      <div className="card" style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 8 }}>
+        <button onClick={() => navigate('/growth')} className="btn btn-outline" style={{ flexDirection: 'column', gap: 2, padding: 12 }}>
           <span style={{ fontSize: '1.3rem' }}>📈</span>
           <span style={{ fontSize: '0.8rem', fontWeight: 600 }}>Crescimento</span>
           <span className="text-muted" style={{ fontSize: '0.7rem' }}>{growthRecords.length} medições</span>
         </button>
-        <button onClick={() => navigate('/health')} className="btn btn-outline" style={{ flex: 1, flexDirection: 'column', gap: 2, padding: 12 }}>
+        <button onClick={() => navigate('/health')} className="btn btn-outline" style={{ flexDirection: 'column', gap: 2, padding: 12 }}>
           <span style={{ fontSize: '1.3rem' }}>💉</span>
           <span style={{ fontSize: '0.8rem', fontWeight: 600 }}>Saúde</span>
           <span className="text-muted" style={{ fontSize: '0.7rem' }}>{pendingVaccines} vacinas pendentes</span>
         </button>
-        <button onClick={() => navigate('/reports')} className="btn btn-outline" style={{ flex: 1, flexDirection: 'column', gap: 2, padding: 12 }}>
+        <button onClick={() => navigate('/reports')} className="btn btn-outline" style={{ flexDirection: 'column', gap: 2, padding: 12 }}>
           <span style={{ fontSize: '1.3rem' }}>📊</span>
           <span style={{ fontSize: '0.8rem', fontWeight: 600 }}>Relatórios</span>
           <span className="text-muted" style={{ fontSize: '0.7rem' }}>Exportar dados</span>
+        </button>
+        <button onClick={() => navigate('/appointments')} className="btn btn-outline" style={{ flexDirection: 'column', gap: 2, padding: 12 }}>
+          <span style={{ fontSize: '1.3rem' }}>🏥</span>
+          <span style={{ fontSize: '0.8rem', fontWeight: 600 }}>Consultas</span>
+          <span className="text-muted" style={{ fontSize: '0.7rem' }}>{upcomingAppointments} próximas</span>
         </button>
       </div>
 

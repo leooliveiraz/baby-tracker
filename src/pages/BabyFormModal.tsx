@@ -13,6 +13,8 @@ export default function BabyFormModal({ onClose, baby }: Props) {
   const fileRef = useRef<HTMLInputElement>(null)
   const [name, setName] = useState(baby?.name ?? '')
   const [birthDate, setBirthDate] = useState(baby?.birthDate ?? '')
+  const [motherName, setMotherName] = useState(baby?.motherName ?? '')
+  const [fatherName, setFatherName] = useState(baby?.fatherName ?? '')
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [preview, setPreview] = useState<string | null>(null)
   const [uploading, setUploading] = useState(false)
@@ -59,7 +61,7 @@ export default function BabyFormModal({ onClose, baby }: Props) {
         }
       }
 
-      updateBaby({ ...baby, name: name.trim(), birthDate, photo })
+      updateBaby({ ...baby, name: name.trim(), birthDate, photo, motherName: motherName.trim() || undefined, fatherName: fatherName.trim() || undefined })
     } else {
       let photoUrl: string | undefined
 
@@ -74,9 +76,9 @@ export default function BabyFormModal({ onClose, baby }: Props) {
         } catch {
           photoUrl = await fileToBase64(selectedFile)
         }
-        addBaby(babyId, name.trim(), birthDate, photoUrl)
+        addBaby(babyId, name.trim(), birthDate, photoUrl, motherName.trim() || undefined, fatherName.trim() || undefined)
       } else {
-        addBaby(crypto.randomUUID(), name.trim(), birthDate)
+        addBaby(crypto.randomUUID(), name.trim(), birthDate, undefined, motherName.trim() || undefined, fatherName.trim() || undefined)
       }
     }
 
@@ -189,6 +191,36 @@ export default function BabyFormModal({ onClose, baby }: Props) {
               padding: '10px 14px', borderRadius: 'var(--radius)',
               border: '2px solid var(--lilac-100)', fontSize: '1rem',
               colorScheme: 'light',
+            }}
+          />
+        </div>
+
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+          <label style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-muted)' }}>
+            Nome da Mãe
+          </label>
+          <input
+            value={motherName}
+            onChange={e => setMotherName(e.target.value)}
+            placeholder="Opcional"
+            style={{
+              padding: '10px 14px', borderRadius: 'var(--radius)',
+              border: '2px solid var(--lilac-100)', fontSize: '1rem',
+            }}
+          />
+        </div>
+
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+          <label style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-muted)' }}>
+            Nome do Pai
+          </label>
+          <input
+            value={fatherName}
+            onChange={e => setFatherName(e.target.value)}
+            placeholder="Opcional"
+            style={{
+              padding: '10px 14px', borderRadius: 'var(--radius)',
+              border: '2px solid var(--lilac-100)', fontSize: '1rem',
             }}
           />
         </div>

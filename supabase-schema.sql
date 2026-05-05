@@ -22,6 +22,9 @@ CREATE TABLE IF NOT EXISTS babies (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   name TEXT NOT NULL,
   birth_date DATE NOT NULL,
+  mother_name TEXT,
+  father_name TEXT,
+  photo TEXT,
   created_by UUID REFERENCES auth.users(id) NOT NULL,
   created_at TIMESTAMPTZ DEFAULT now(),
   avatar_url TEXT
@@ -43,7 +46,7 @@ CREATE TABLE IF NOT EXISTS records (
   id UUID PRIMARY KEY,
   baby_id UUID NOT NULL REFERENCES babies(id) ON DELETE CASCADE,
   user_id UUID NOT NULL REFERENCES auth.users(id),
-  type TEXT NOT NULL CHECK (type IN ('feeding','diaper','sleep','activity','growth','vaccine','medication','fever')),
+  type TEXT NOT NULL CHECK (type IN ('feeding','diaper','sleep','activity','growth','vaccine','medication','fever','appointment')),
   timestamp TIMESTAMPTZ NOT NULL DEFAULT now(),
   data JSONB NOT NULL DEFAULT '{}',
   created_at TIMESTAMPTZ DEFAULT now()

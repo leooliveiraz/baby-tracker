@@ -43,6 +43,8 @@ export function useSync() {
         name: b.name,
         birth_date: b.birthDate,
         photo: b.photo,
+        mother_name: b.motherName ?? null,
+        father_name: b.fatherName ?? null,
         created_by: u.id,
       }))
     )
@@ -80,6 +82,9 @@ export function useSync() {
       name: b.name,
       birthDate: b.birth_date,
       createdAt: b.created_at,
+      photo: b.photo ?? undefined,
+      motherName: b.mother_name ?? undefined,
+      fatherName: b.father_name ?? undefined,
     }))
 
     const babyIds = babies.map(b => b.id)

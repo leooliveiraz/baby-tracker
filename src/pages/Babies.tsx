@@ -52,6 +52,13 @@ export default function Babies() {
               <div className="text-muted">
                 {new Date(baby.birthDate).toLocaleDateString('pt-BR')}
               </div>
+              {(baby.motherName || baby.fatherName) && (
+                <div className="text-muted" style={{ fontSize: '0.75rem', marginTop: 2 }}>
+                  {baby.motherName && `👩 ${baby.motherName}`}
+                  {baby.motherName && baby.fatherName && ' · '}
+                  {baby.fatherName && `👨 ${baby.fatherName}`}
+                </div>
+              )}
             </div>
 
             <button

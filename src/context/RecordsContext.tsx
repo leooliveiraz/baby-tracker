@@ -85,7 +85,19 @@ export interface FeverRecord {
   notes?: string
 }
 
-export type BabyRecord = FeedingRecord | DiaperRecord | SleepRecord | ActivityRecord | GrowthRecord | VaccineRecord | MedicationRecord | FeverRecord
+export interface AppointmentRecord {
+  id: string
+  babyId: string
+  type: 'appointment'
+  timestamp: string
+  doctor: string
+  specialty: string
+  appointmentDate: string
+  location?: string
+  notes?: string
+}
+
+export type BabyRecord = FeedingRecord | DiaperRecord | SleepRecord | ActivityRecord | GrowthRecord | VaccineRecord | MedicationRecord | FeverRecord | AppointmentRecord
 
 type RecordAction =
   | { type: 'ADD_RECORD'; payload: BabyRecord }

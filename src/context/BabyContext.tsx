@@ -6,6 +6,8 @@ export interface Baby {
   birthDate: string
   createdAt: string
   photo?: string
+  motherName?: string
+  fatherName?: string
 }
 
 interface BabyState {
@@ -62,7 +64,7 @@ function babyReducer(state: BabyState, action: BabyAction): BabyState {
 
 interface BabyContextType {
   state: BabyState
-  addBaby: (id: string, name: string, birthDate: string, photo?: string) => void
+  addBaby: (id: string, name: string, birthDate: string, photo?: string, motherName?: string, fatherName?: string) => void
   selectBaby: (id: string) => void
   removeBaby: (id: string) => void
   updateBaby: (baby: Baby) => void
@@ -77,13 +79,15 @@ export function BabyProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => { saveState(state) }, [state])
 
-  const addBaby = (id: string, name: string, birthDate: string, photo?: string) => {
+  const addBaby = (id: string, name: string, birthDate: string, photo?: string, motherName?: string, fatherName?: string) => {
     const baby: Baby = {
       id,
       name,
       birthDate,
       createdAt: new Date().toISOString(),
       photo,
+      motherName,
+      fatherName,
     }
     dispatch({ type: 'ADD_BABY', payload: baby })
     dispatch({ type: 'SELECT_BABY', payload: baby.id })

@@ -91,10 +91,11 @@ type RecordAction =
   | { type: 'ADD_RECORD'; payload: BabyRecord }
   | { type: 'UPDATE_RECORD'; payload: BabyRecord }
   | { type: 'DELETE_RECORD'; payload: string }
+  | { type: 'LOAD_RECORDS'; payload: BabyRecord[] }
 
 const STORAGE_KEY = 'baby-tracker-records'
 
-function loadRecords(): BabyRecord[] {
+function loadRecordsFromStorage(): BabyRecord[] {
   try {
     const raw = localStorage.getItem(STORAGE_KEY)
     if (raw) return JSON.parse(raw)
@@ -110,6 +111,8 @@ function recordsReducer(state: BabyRecord[], action: RecordAction): BabyRecord[]
       return state.map(r => r.id === action.payload.id ? action.payload : r)
     case 'DELETE_RECORD':
       return state.filter(r => r.id !== action.payload)
+    case 'LOAD_RECORDS':
+      return action.payload
     default:
       return state
   }
@@ -120,12 +123,13 @@ interface RecordsContextType {
   addRecord: (record: BabyRecord) => void
   updateRecord: (record: BabyRecord) => void
   deleteRecord: (id: string) => void
+  loadRecords: (records: BabyRecord[]) => void
 }
 
 const RecordsContext = createContext<RecordsContextType | null>(null)
 
 export function RecordsProvider({ children }: { children: ReactNode }) {
-  const [records, dispatch] = useReducer(recordsReducer, null, loadRecords)
+  const [records, dispatch] = useReducer(recordsReducer, null, loadRecordsFromStorage)
 
   useEffect(() => {
     try { localStorage.setItem(STORAGE_KEY, JSON.stringify(records)) }
@@ -135,9 +139,10 @@ export function RecordsProvider({ children }: { children: ReactNode }) {
   const addRecord = (record: BabyRecord) => dispatch({ type: 'ADD_RECORD', payload: record })
   const updateRecord = (record: BabyRecord) => dispatch({ type: 'UPDATE_RECORD', payload: record })
   const deleteRecord = (id: string) => dispatch({ type: 'DELETE_RECORD', payload: id })
+  const loadRecords = (newRecords: BabyRecord[]) => dispatch({ type: 'LOAD_RECORDS', payload: newRecords })
 
   return (
-    <RecordsContext.Provider value={{ records, addRecord, updateRecord, deleteRecord }}>
+    <RecordsContext.Provider value={{ records, addRecord, updateRecord, deleteRecord, loadRecords }}>
       {children}
     </RecordsContext.Provider>
   )

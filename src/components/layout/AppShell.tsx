@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Outlet } from 'react-router-dom'
 import Header from './Header'
 import BottomNav from './BottomNav'
-import AddBabyModal from '../../pages/AddBabyModal'
+import BabyFormModal from '../../pages/BabyFormModal'
 
 export default function AppShell() {
   const [showAddBaby, setShowAddBaby] = useState(false)
@@ -14,7 +14,7 @@ export default function AppShell() {
         <Outlet />
       </main>
       <BottomNav />
-      {showAddBaby && <AddBabyModal onClose={() => setShowAddBaby(false)} />}
+      {showAddBaby && <BabyFormModal onClose={() => setShowAddBaby(false)} />}
     </>
   )
 }

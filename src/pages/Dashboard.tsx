@@ -3,6 +3,7 @@ import { useRecords, getBabyRecords, type FeedingRecord, type DiaperRecord, type
 import { calculateAge, isToday, calcDuration } from '../utils/time'
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts'
 import { useNavigate } from 'react-router-dom'
+import PhotoAvatar from '../components/ui/PhotoAvatar'
 
 export default function Dashboard() {
   const { selectedBaby, state } = useBabyContext()
@@ -51,13 +52,16 @@ export default function Dashboard() {
 
   return (
     <div className="container">
-      <div className="card" style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-        <span style={{ fontSize: 48 }}>👶</span>
-        <div>
+      <button className="card" onClick={() => navigate('/babies')} style={{
+        display: 'flex', alignItems: 'center', gap: 16, cursor: 'pointer', textAlign: 'left', width: '100%',
+      }}>
+        <PhotoAvatar photo={selectedBaby.photo} size={56} name={selectedBaby.name} />
+        <div style={{ flex: 1 }}>
           <h1 className="page-title">{selectedBaby.name}</h1>
           <p className="text-muted">{calculateAge(selectedBaby.birthDate)}</p>
         </div>
-      </div>
+        <span style={{ fontSize: '1.2rem', color: 'var(--lilac-300)' }}>›</span>
+      </button>
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 8 }}>
         <DashboardCard icon="🥛" label="Mamadas" value={feedingRecords.length} onClick={() => navigate('/feed')} />
@@ -92,7 +96,7 @@ export default function Dashboard() {
           <BarChart data={chartData}>
             <XAxis dataKey="label" />
             <YAxis allowDecimals={false} />
-            <Tooltip formatter={(value: number, _name: string) => [value, chartData.find(d => d.value === value)?.name ?? '']} />
+            <Tooltip formatter={(value: number, _name: string, entry: { payload?: { name: string } }) => [value, entry.payload?.name ?? '']} />
             <Bar dataKey="value" fill="#C39BD3" radius={[6, 6, 0, 0]} />
           </BarChart>
         </ResponsiveContainer>

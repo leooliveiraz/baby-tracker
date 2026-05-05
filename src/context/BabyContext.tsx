@@ -5,6 +5,7 @@ export interface Baby {
   name: string
   birthDate: string
   createdAt: string
+  photo?: string
 }
 
 interface BabyState {
@@ -17,6 +18,7 @@ type BabyAction =
   | { type: 'SELECT_BABY'; payload: string }
   | { type: 'REMOVE_BABY'; payload: string }
   | { type: 'UPDATE_BABY'; payload: Baby }
+  | { type: 'LOAD_BABIES'; payload: { babies: Baby[]; selectedBabyId: string | null } }
 
 const STORAGE_KEY = 'baby-tracker-state'
 
@@ -51,6 +53,8 @@ function babyReducer(state: BabyState, action: BabyAction): BabyState {
         ...state,
         babies: state.babies.map(b => b.id === action.payload.id ? action.payload : b),
       }
+    case 'LOAD_BABIES':
+      return action.payload
     default:
       return state
   }
@@ -58,10 +62,11 @@ function babyReducer(state: BabyState, action: BabyAction): BabyState {
 
 interface BabyContextType {
   state: BabyState
-  addBaby: (name: string, birthDate: string) => void
+  addBaby: (id: string, name: string, birthDate: string, photo?: string) => void
   selectBaby: (id: string) => void
   removeBaby: (id: string) => void
   updateBaby: (baby: Baby) => void
+  loadBabies: (babies: Baby[], selectedBabyId: string | null) => void
   selectedBaby: Baby | null
 }
 
@@ -72,12 +77,13 @@ export function BabyProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => { saveState(state) }, [state])
 
-  const addBaby = (name: string, birthDate: string) => {
+  const addBaby = (id: string, name: string, birthDate: string, photo?: string) => {
     const baby: Baby = {
-      id: crypto.randomUUID(),
+      id,
       name,
       birthDate,
       createdAt: new Date().toISOString(),
+      photo,
     }
     dispatch({ type: 'ADD_BABY', payload: baby })
     dispatch({ type: 'SELECT_BABY', payload: baby.id })
@@ -86,11 +92,13 @@ export function BabyProvider({ children }: { children: ReactNode }) {
   const selectBaby = (id: string) => dispatch({ type: 'SELECT_BABY', payload: id })
   const removeBaby = (id: string) => dispatch({ type: 'REMOVE_BABY', payload: id })
   const updateBaby = (baby: Baby) => dispatch({ type: 'UPDATE_BABY', payload: baby })
+  const loadBabies = (babies: Baby[], selectedBabyId: string | null) =>
+    dispatch({ type: 'LOAD_BABIES', payload: { babies, selectedBabyId } })
 
   const selectedBaby = state.babies.find(b => b.id === state.selectedBabyId) ?? null
 
   return (
-    <BabyContext.Provider value={{ state, addBaby, selectBaby, removeBaby, updateBaby, selectedBaby }}>
+    <BabyContext.Provider value={{ state, addBaby, selectBaby, removeBaby, updateBaby, loadBabies, selectedBaby }}>
       {children}
     </BabyContext.Provider>
   )

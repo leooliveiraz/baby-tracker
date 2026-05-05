@@ -160,3 +160,26 @@ CREATE POLICY "records_update" ON records
 
 CREATE POLICY "records_delete" ON records
   FOR DELETE USING (user_id = auth.uid());
+
+-- =============================================
+-- 6. STORAGE (baby photos bucket)
+-- =============================================
+INSERT INTO storage.buckets (id, name, public, avif_autodetection)
+VALUES ('baby-photos', 'baby-photos', true, false)
+ON CONFLICT (id) DO NOTHING;
+
+CREATE POLICY "Anyone can view baby photos"
+  ON storage.objects FOR SELECT
+  USING (bucket_id = 'baby-photos');
+
+CREATE POLICY "Authenticated users can upload baby photos"
+  ON storage.objects FOR INSERT
+  WITH CHECK (bucket_id = 'baby-photos' AND auth.role() = 'authenticated');
+
+CREATE POLICY "Users can update own baby photos"
+  ON storage.objects FOR UPDATE
+  USING (bucket_id = 'baby-photos' AND auth.role() = 'authenticated');
+
+CREATE POLICY "Users can delete own baby photos"
+  ON storage.objects FOR DELETE
+  USING (bucket_id = 'baby-photos' AND auth.role() = 'authenticated');

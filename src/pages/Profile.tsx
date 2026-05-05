@@ -1,14 +1,15 @@
 import { useState, useEffect } from 'react'
 import { useAuth } from '../context/AuthContext'
-import { supabase } from '../lib/supabase'
 import { useBabyContext } from '../context/BabyContext'
-import { useRecords, type SleepRecord, type VaccineRecord } from '../context/RecordsContext'
+import { useRecords } from '../context/RecordsContext'
+import { useSync } from '../context/useSync'
 import { useNavigate } from 'react-router-dom'
 
 export default function Profile() {
   const { user, signOut } = useAuth()
   const { state } = useBabyContext()
   const { records } = useRecords()
+  const { pushToCloud, pullFromCloud, isConfigured } = useSync()
   const navigate = useNavigate()
   const [syncing, setSyncing] = useState(false)
   const [syncResult, setSyncResult] = useState('')
@@ -20,37 +21,25 @@ export default function Profile() {
 
   if (!user) return null
 
-  const syncToCloud = async () => {
+  const syncPush = async () => {
     setSyncing(true)
     setSyncResult('')
-
     try {
-      const babyPromises = state.babies.map(baby =>
-        supabase!.from('babies').upsert({
-          id: baby.id,
-          name: baby.name,
-          birth_date: baby.birthDate,
-          created_by: user.id,
-        })
-      )
-      await Promise.all(babyPromises)
+      const result = await pushToCloud(user)
+      setSyncResult(`✅ ${result.babies} bebês e ${result.records} registros enviados!`)
+    } catch (err) {
+      setSyncResult(`❌ Erro: ${err instanceof Error ? err.message : 'Erro desconhecido'}`)
+    } finally {
+      setSyncing(false)
+    }
+  }
 
-      const getTimestamp = (r: typeof records[number]): string =>
-        r.type === 'sleep' ? (r as SleepRecord).startTime : r.type === 'vaccine' ? (r as VaccineRecord).date : r.timestamp
-
-      const recordPromises = records.map(r =>
-        supabase!.from('records').upsert({
-          id: r.id,
-          baby_id: r.babyId,
-          user_id: user.id,
-          type: r.type,
-          timestamp: getTimestamp(r),
-          data: r,
-        })
-      )
-      await Promise.all(recordPromises)
-
-      setSyncResult(`✅ ${babyPromises.length} bebês e ${recordPromises.length} registros sincronizados!`)
+  const syncPull = async () => {
+    setSyncing(true)
+    setSyncResult('')
+    try {
+      const result = await pullFromCloud()
+      setSyncResult(`✅ ${result.babies} bebês e ${result.records} registros baixados!`)
     } catch (err) {
       setSyncResult(`❌ Erro: ${err instanceof Error ? err.message : 'Erro desconhecido'}`)
     } finally {
@@ -71,14 +60,19 @@ export default function Profile() {
 
       <div className="card" style={{ marginBottom: 16 }}>
         <p style={{ fontWeight: 600, color: 'var(--lilac-900)', marginBottom: 12 }}>
-          ☁️ Sincronização com a Nuvem
+          ☁️ Sincronização
         </p>
         <p className="text-muted" style={{ fontSize: '0.85rem', marginBottom: 12 }}>
-          Seus dados locais serão enviados para o Supabase e ficarão disponíveis em todos os dispositivos.
+          Dados são sincronizados automaticamente ao logar. Use os botões para forçar manualmente.
         </p>
-        <button onClick={syncToCloud} disabled={syncing} className="btn btn-primary" style={{ width: '100%' }}>
-          {syncing ? '🔄 Sincronizando...' : '☁️ Sincronizar Agora'}
-        </button>
+        <div style={{ display: 'flex', gap: 8 }}>
+          <button onClick={syncPush} disabled={syncing} className="btn btn-primary" style={{ flex: 1 }}>
+            {syncing ? '🔄' : '📤'} Enviar
+          </button>
+          <button onClick={syncPull} disabled={syncing} className="btn btn-outline" style={{ flex: 1 }}>
+            {syncing ? '🔄' : '📥'} Baixar
+          </button>
+        </div>
         {syncResult && (
           <p style={{ fontSize: '0.85rem', marginTop: 8, color: syncResult.startsWith('✅') ? '#2ECC71' : '#E74C3C' }}>
             {syncResult}
@@ -110,7 +104,8 @@ export default function Profile() {
         <div className="text-muted" style={{ fontSize: '0.85rem' }}>
           <p>👶 Bebês locais: {state.babies.length}</p>
           <p>📝 Registros locais: {records.length}</p>
-          <p>🔗 Supabase: {supabase ? 'Conectado' : 'Não configurado'}</p>
+          <p>🔗 Supabase: {isConfigured ? 'Conectado' : 'Não configurado'}</p>
+          <p>🔄 Sync automática: {user ? 'Ativa' : 'Inativa'}</p>
         </div>
       </div>
 

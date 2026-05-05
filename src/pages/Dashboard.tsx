@@ -1,5 +1,5 @@
 import { useBabyContext } from '../context/BabyContext'
-import { useRecords, getBabyRecords, type FeedingRecord, type DiaperRecord, type SleepRecord, type ActivityRecord } from '../context/RecordsContext'
+import { useRecords, getBabyRecords, type FeedingRecord, type DiaperRecord, type SleepRecord, type ActivityRecord, type GrowthRecord, type VaccineRecord } from '../context/RecordsContext'
 import { calculateAge, isToday, calcDuration } from '../utils/time'
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts'
 import { useNavigate } from 'react-router-dom'
@@ -33,6 +33,9 @@ export default function Dashboard() {
   const diaperRecords = getBabyRecords<DiaperRecord>(records, selectedBaby.id, 'diaper').filter(r => isToday(r.timestamp))
   const sleepRecords = getBabyRecords<SleepRecord>(records, selectedBaby.id, 'sleep').filter(r => isToday(r.startTime))
   const activityRecords = getBabyRecords<ActivityRecord>(records, selectedBaby.id, 'activity').filter(r => isToday(r.timestamp))
+  const growthRecords = getBabyRecords<GrowthRecord>(records, selectedBaby.id, 'growth')
+  const vaccineRecords = getBabyRecords<VaccineRecord>(records, selectedBaby.id, 'vaccine')
+  const pendingVaccines = vaccineRecords.filter(v => v.status !== 'taken').length
 
   const completedSleep = sleepRecords.filter(r => r.endTime)
   const sleepMinutes = completedSleep.reduce((acc, r) => acc + calcDuration(r.startTime, r.endTime), 0)
@@ -61,6 +64,19 @@ export default function Dashboard() {
         <DashboardCard icon="👶" label="Fraldas" value={diaperRecords.length} onClick={() => navigate('/diaper')} />
         <DashboardCard icon="😴" label="Sono" value={`${Math.round((sleepMinutes + activeSleepMinutes) / 60)}h`} onClick={() => navigate('/sleep')} />
         <DashboardCard icon="🧸" label="Atividades" value={activityRecords.length} onClick={() => navigate('/activities')} />
+      </div>
+
+      <div className="card" style={{ display: 'flex', gap: 8 }}>
+        <button onClick={() => navigate('/growth')} className="btn btn-outline" style={{ flex: 1, flexDirection: 'column', gap: 2, padding: 12 }}>
+          <span style={{ fontSize: '1.3rem' }}>📈</span>
+          <span style={{ fontSize: '0.8rem', fontWeight: 600 }}>Crescimento</span>
+          <span className="text-muted" style={{ fontSize: '0.7rem' }}>{growthRecords.length} medições</span>
+        </button>
+        <button onClick={() => navigate('/health')} className="btn btn-outline" style={{ flex: 1, flexDirection: 'column', gap: 2, padding: 12 }}>
+          <span style={{ fontSize: '1.3rem' }}>💉</span>
+          <span style={{ fontSize: '0.8rem', fontWeight: 600 }}>Saúde</span>
+          <span className="text-muted" style={{ fontSize: '0.7rem' }}>{pendingVaccines} vacinas pendentes</span>
+        </button>
       </div>
 
       <div className="card">

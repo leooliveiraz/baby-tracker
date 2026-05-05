@@ -6,6 +6,8 @@ import Feeding from './pages/Feeding'
 import Diaper from './pages/Diaper'
 import Sleep from './pages/Sleep'
 import Activities from './pages/Activities'
+import Growth from './pages/Growth'
+import Health from './pages/Health'
 
 export default function App() {
   return (
@@ -18,6 +20,8 @@ export default function App() {
           <Route path="/diaper" element={<Diaper />} />
           <Route path="/sleep" element={<Sleep />} />
           <Route path="/activities" element={<Activities />} />
+          <Route path="/growth" element={<Growth />} />
+          <Route path="/health" element={<Health />} />
         </Route>
       </Routes>
     </BrowserRouter>

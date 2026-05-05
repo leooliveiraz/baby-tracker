@@ -43,7 +43,49 @@ export interface ActivityRecord {
   notes?: string
 }
 
-export type BabyRecord = FeedingRecord | DiaperRecord | SleepRecord | ActivityRecord
+export interface GrowthRecord {
+  id: string
+  babyId: string
+  type: 'growth'
+  timestamp: string
+  weight?: number
+  height?: number
+  headCircumference?: number
+  notes?: string
+}
+
+export interface VaccineRecord {
+  id: string
+  babyId: string
+  type: 'vaccine'
+  vaccineName: string
+  dose: string
+  date: string
+  lot?: string
+  status: 'taken' | 'scheduled' | 'skipped'
+  notes?: string
+}
+
+export interface MedicationRecord {
+  id: string
+  babyId: string
+  type: 'medication'
+  medicationName: string
+  dose: string
+  timestamp: string
+  notes?: string
+}
+
+export interface FeverRecord {
+  id: string
+  babyId: string
+  type: 'fever'
+  timestamp: string
+  temperature: number
+  notes?: string
+}
+
+export type BabyRecord = FeedingRecord | DiaperRecord | SleepRecord | ActivityRecord | GrowthRecord | VaccineRecord | MedicationRecord | FeverRecord
 
 type RecordAction =
   | { type: 'ADD_RECORD'; payload: BabyRecord }

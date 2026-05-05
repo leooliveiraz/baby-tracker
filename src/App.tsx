@@ -8,6 +8,7 @@ import Sleep from './pages/Sleep'
 import Activities from './pages/Activities'
 import Growth from './pages/Growth'
 import Health from './pages/Health'
+import Reports from './pages/Reports'
 
 export default function App() {
   return (
@@ -22,6 +23,7 @@ export default function App() {
           <Route path="/activities" element={<Activities />} />
           <Route path="/growth" element={<Growth />} />
           <Route path="/health" element={<Health />} />
+          <Route path="/reports" element={<Reports />} />
         </Route>
       </Routes>
     </BrowserRouter>

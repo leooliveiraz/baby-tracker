@@ -77,6 +77,11 @@ export default function Dashboard() {
           <span style={{ fontSize: '0.8rem', fontWeight: 600 }}>Saúde</span>
           <span className="text-muted" style={{ fontSize: '0.7rem' }}>{pendingVaccines} vacinas pendentes</span>
         </button>
+        <button onClick={() => navigate('/reports')} className="btn btn-outline" style={{ flex: 1, flexDirection: 'column', gap: 2, padding: 12 }}>
+          <span style={{ fontSize: '1.3rem' }}>📊</span>
+          <span style={{ fontSize: '0.8rem', fontWeight: 600 }}>Relatórios</span>
+          <span className="text-muted" style={{ fontSize: '0.7rem' }}>Exportar dados</span>
+        </button>
       </div>
 
       <div className="card">

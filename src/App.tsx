@@ -2,6 +2,7 @@ import { HashRouter, Routes, Route } from 'react-router-dom'
 import { useRegisterSW } from 'virtual:pwa-register/react'
 import AppShell from './components/layout/AppShell'
 import ToastContainer from './components/ui/ToastContainer'
+import ErrorBoundary from './components/ui/ErrorBoundary'
 import Dashboard from './pages/Dashboard'
 import Babies from './pages/Babies'
 import Feeding from './pages/Feeding'
@@ -35,24 +36,26 @@ export default function App() {
         </div>
       )}
       <ToastContainer />
-      <HashRouter>
-        <Routes>
-          <Route element={<AppShell />}>
-            <Route path="/" element={<Dashboard />} />
-            <Route path="/babies" element={<Babies />} />
-            <Route path="/feed" element={<Feeding />} />
-            <Route path="/diaper" element={<Diaper />} />
-            <Route path="/sleep" element={<Sleep />} />
-            <Route path="/activities" element={<Activities />} />
-            <Route path="/growth" element={<Growth />} />
-            <Route path="/health" element={<Health />} />
-            <Route path="/reports" element={<Reports />} />
-            <Route path="/appointments" element={<Appointments />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/profile" element={<Profile />} />
-          </Route>
-        </Routes>
-      </HashRouter>
+      <ErrorBoundary>
+        <HashRouter>
+          <Routes>
+            <Route element={<AppShell />}>
+              <Route path="/" element={<Dashboard />} />
+              <Route path="/babies" element={<Babies />} />
+              <Route path="/feed" element={<Feeding />} />
+              <Route path="/diaper" element={<Diaper />} />
+              <Route path="/sleep" element={<Sleep />} />
+              <Route path="/activities" element={<Activities />} />
+              <Route path="/growth" element={<Growth />} />
+              <Route path="/health" element={<Health />} />
+              <Route path="/reports" element={<Reports />} />
+              <Route path="/appointments" element={<Appointments />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/profile" element={<Profile />} />
+            </Route>
+          </Routes>
+        </HashRouter>
+      </ErrorBoundary>
     </>
   )
 }

@@ -322,3 +322,48 @@ input:focus, select:focus, textarea:focus, button:focus-visible {
   justify-content: center;
   padding: 40px;
 }
+
+/* ── Error Boundary ─────────────────────── */
+
+.error-boundary {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 48px 24px;
+  min-height: 100dvh;
+  text-align: center;
+  background: var(--bg);
+}
+
+.error-boundary-icon {
+  font-size: 4rem;
+}
+
+.error-boundary-title {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--lilac-900);
+}
+
+.error-boundary-text {
+  font-size: 0.95rem;
+  color: var(--text-muted);
+  max-width: 320px;
+}
+
+.error-boundary-detail {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  opacity: 0.6;
+  max-width: 320px;
+  word-break: break-all;
+  font-family: monospace;
+}
+
+.error-boundary-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}

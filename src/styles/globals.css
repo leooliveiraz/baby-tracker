@@ -194,3 +194,61 @@ input:focus, select:focus, textarea:focus, button:focus-visible {
   font-size: 0.8rem;
   color: var(--text-muted);
 }
+
+.update-banner {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 999;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 16px;
+  background: var(--lilac-900);
+  color: var(--lilac-50);
+  font-size: 0.9rem;
+  font-weight: 600;
+  box-shadow: var(--shadow-lg);
+}
+
+.update-banner-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.update-btn {
+  padding: 6px 16px;
+  border-radius: var(--radius);
+  background: var(--lilac-500);
+  color: var(--white);
+  font-weight: 700;
+  font-size: 0.85rem;
+  border: none;
+  cursor: pointer;
+}
+
+.update-btn:hover {
+  background: var(--lilac-700);
+}
+
+.update-dismiss {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.15);
+  color: var(--lilac-50);
+  font-size: 0.9rem;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.update-dismiss:hover {
+  background: rgba(255, 255, 255, 0.25);
+}

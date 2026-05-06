@@ -46,7 +46,8 @@ CREATE TABLE IF NOT EXISTS records (
   id UUID PRIMARY KEY,
   baby_id UUID NOT NULL REFERENCES babies(id) ON DELETE CASCADE,
   user_id UUID NOT NULL REFERENCES auth.users(id),
-  type TEXT NOT NULL CHECK (type IN ('feeding','diaper','sleep','activity','growth','vaccine','medication','fever','appointment')),
+  type TEXT NOT NULL CHECK (type IN 
+('feeding','diaper','sleep','activity','growth','vaccine','medication','fever','appointment','diary')),
   timestamp TIMESTAMPTZ NOT NULL DEFAULT now(),
   data JSONB NOT NULL DEFAULT '{}',
   created_at TIMESTAMPTZ DEFAULT now()

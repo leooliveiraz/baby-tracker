@@ -5,6 +5,7 @@ import { useRecords } from '../context/RecordsContext'
 import { useSync } from '../context/useSync'
 import { useNavigate } from 'react-router-dom'
 import { isSoundEnabled, toggleSound } from '../utils/sounds'
+import { version } from '../../package.json'
 
 export default function Profile() {
   const { user, signOut } = useAuth()
@@ -135,6 +136,7 @@ export default function Profile() {
           <p>📝 Registros locais: {records.length}</p>
           <p>🔗 Supabase: {isConfigured ? 'Conectado' : 'Não configurado'}</p>
           <p>🔄 Sync automática: {user ? 'Ativa' : 'Inativa'}</p>
+          <p>📦 Versão: {version}</p>
         </div>
       </div>
 

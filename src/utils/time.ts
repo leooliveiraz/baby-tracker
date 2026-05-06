@@ -7,14 +7,16 @@ export function formatDate(iso: string): string {
 }
 
 export function formatDuration(minutes: number): string {
-  if (minutes < 60) return `${minutes}min`
+  if (minutes < 1) return '< 1min'
+  if (minutes < 60) return `${Math.round(minutes)}min`
   const h = Math.floor(minutes / 60)
-  const m = minutes % 60
+  const m = Math.round(minutes % 60)
   return m > 0 ? `${h}h ${m}min` : `${h}h`
 }
 
 export function calcDuration(start: string, end?: string): number {
-  return Math.round((new Date(end ?? Date.now()).getTime() - new Date(start).getTime()) / 60000)
+  const ms = (new Date(end ?? Date.now()).getTime() - new Date(start).getTime())
+  return Math.round(ms / 60000 * 10) / 10
 }
 
 export function isToday(iso: string): boolean {

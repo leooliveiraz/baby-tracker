@@ -14,6 +14,7 @@ import Appointments from './pages/Appointments'
 import Backup from './pages/Backup'
 import Timeline from './pages/Timeline'
 import Babysitter from './pages/Babysitter'
+import Diary from './pages/Diary'
 import Login from './pages/Login'
 import Profile from './pages/Profile'
 
@@ -52,6 +53,7 @@ export default function App() {
               <Route path="/backup" element={<Backup />} />
               <Route path="/timeline" element={<Timeline />} />
               <Route path="/babysitter" element={<Babysitter />} />
+              <Route path="/diary" element={<Diary />} />
               <Route path="/login" element={<Login />} />
               <Route path="/profile" element={<Profile />} />
             </Route>

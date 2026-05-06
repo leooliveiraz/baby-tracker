@@ -127,6 +127,28 @@ export default function Profile() {
         </div>
       </div>
 
+      <div className="card" style={{ marginBottom: 16 }}>
+        <p style={{ fontWeight: 600, color: 'var(--lilac-900)', marginBottom: 8 }}>
+          🔄 Atualização (iOS)
+        </p>
+        <p className="text-muted" style={{ fontSize: '0.8rem', marginBottom: 8, lineHeight: 1.5 }}>
+          No iPhone/iPad, o PWA não atualiza automaticamente. Para forçar a atualização:
+        </p>
+        <ol className="text-muted" style={{ fontSize: '0.8rem', marginBottom: 12, paddingLeft: 20, lineHeight: 1.8 }}>
+          <li>Abra o <strong>Safari</strong> e acesse o app</li>
+          <li>Espere carregar completamente</li>
+          <li>Feche o Safari (remova do multitarefa)</li>
+          <li>Abra o app pela <strong>Tela Inicial</strong></li>
+        </ol>
+        <button
+          onClick={() => window.location.reload()}
+          className="btn btn-outline btn-sm"
+          style={{ width: '100%' }}
+        >
+          🔄 Verificar atualização
+        </button>
+      </div>
+
       <div className="card">
         <p style={{ fontWeight: 600, color: 'var(--lilac-900)', marginBottom: 12 }}>
           📊 Status

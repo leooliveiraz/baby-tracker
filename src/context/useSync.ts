@@ -133,14 +133,15 @@ export function useSync() {
 
     for (const b of cloudBabies ?? []) {
       if (state.deletedIds.includes(b.id)) continue
+      const localBaby = state.babies.find(lb => lb.id === b.id)
       mergedBabies.push({
         id: b.id,
         name: b.name,
         birthDate: b.birth_date,
         createdAt: b.created_at,
-        photo: b.photo ?? undefined,
-        motherName: b.mother_name ?? undefined,
-        fatherName: b.father_name ?? undefined,
+        photo: b.photo ?? localBaby?.photo,
+        motherName: b.mother_name ?? localBaby?.motherName,
+        fatherName: b.father_name ?? localBaby?.fatherName,
       })
       mergedIds.add(b.id)
     }

@@ -17,7 +17,7 @@ function getTimestamp(record: BabyRecord): string {
 
 export function useSync() {
   const { user } = useAuth()
-  const { state, loadBabies, updateBaby } = useBabyContext()
+  const { state, loadBabies, updateBaby, clearDeletedIds } = useBabyContext()
   const { records, loadRecords } = useRecords()
   const channelRef = useRef<ReturnType<NonNullable<typeof supabase>['channel']> | null>(null)
 
@@ -37,6 +37,11 @@ export function useSync() {
       }
     })
 
+    const localBabyIds = new Set(state.babies.map(b => b.id))
+    const localRecordIds = new Set(records.map(r => r.id))
+
+    // ── Sync babies ──────────────────────────
+
     const { error: babyError } = await supabase.from('babies').upsert(
       babiesWithUrls.map(b => ({
         id: b.id,
@@ -50,23 +55,69 @@ export function useSync() {
     )
     if (babyError) throw babyError
 
-    if (records.length === 0) return { babies: state.babies.length, records: 0 }
+    // Delete from cloud babies removed locally (only if created by this user)
+    const { data: cloudBabeys } = await supabase
+      .from('babies')
+      .select('id')
+      .eq('created_by', u.id)
 
-    const { error: recordError } = await supabase.from('records').upsert(
-      records.map(r => ({
-        id: r.id,
-        baby_id: r.babyId,
-        user_id: u.id,
-        type: r.type,
-        timestamp: getTimestamp(r),
-        data: r,
-      })),
-      { onConflict: 'id' }
-    )
-    if (recordError) throw recordError
+    const cloudBabyIds = (cloudBabeys ?? []).map(b => b.id)
+    const babiesToDelete = cloudBabyIds.filter(id => !localBabyIds.has(id))
+
+    if (babiesToDelete.length > 0) {
+      // Delete records for deleted babies
+      const { error: recordDelError } = await supabase
+        .from('records')
+        .delete()
+        .in('baby_id', babiesToDelete)
+      if (recordDelError) throw recordDelError
+
+      const { error: babyDelError } = await supabase
+        .from('babies')
+        .delete()
+        .in('id', babiesToDelete)
+      if (babyDelError) throw babyDelError
+      // Confirmed deleted from cloud, remove from local tracking
+      clearDeletedIds(state.deletedIds.filter(id => !babiesToDelete.includes(id)))
+    }
+
+    // ── Sync records ─────────────────────────
+
+    if (localBabyIds.size > 0) {
+      const { error: recordError } = await supabase.from('records').upsert(
+        records.map(r => ({
+          id: r.id,
+          baby_id: r.babyId,
+          user_id: u.id,
+          type: r.type,
+          timestamp: getTimestamp(r),
+          data: r,
+        })),
+        { onConflict: 'id' }
+      )
+      if (recordError) throw recordError
+
+      // Delete from cloud records removed locally (only this user's records)
+      const { data: cloudRecords } = await supabase
+        .from('records')
+        .select('id')
+        .eq('user_id', u.id)
+        .in('baby_id', [...localBabyIds])
+
+      const cloudRecordIds = (cloudRecords ?? []).map(r => r.id)
+      const recordsToDelete = cloudRecordIds.filter(id => !localRecordIds.has(id))
+
+      if (recordsToDelete.length > 0) {
+        const { error } = await supabase
+          .from('records')
+          .delete()
+          .in('id', recordsToDelete)
+        if (error) throw error
+      }
+    }
 
     return { babies: state.babies.length, records: records.length }
-  }, [state.babies, records])
+  }, [state.babies, records, updateBaby])
 
   const pullFromCloud = useCallback(async () => {
     if (!supabase) throw new Error('Supabase não configurado')
@@ -77,42 +128,74 @@ export function useSync() {
 
     if (babyError) throw babyError
 
-    const babies: Baby[] = (cloudBabies ?? []).map(b => ({
-      id: b.id,
-      name: b.name,
-      birthDate: b.birth_date,
-      createdAt: b.created_at,
-      photo: b.photo ?? undefined,
-      motherName: b.mother_name ?? undefined,
-      fatherName: b.father_name ?? undefined,
-    }))
+    const mergedBabies: Baby[] = []
+    const mergedIds = new Set<string>()
 
-    const babyIds = babies.map(b => b.id)
-    if (babyIds.length === 0) {
-      loadBabies([], null)
-      loadRecords([])
-      return { babies: 0, records: 0 }
+    for (const b of cloudBabies ?? []) {
+      if (state.deletedIds.includes(b.id)) continue
+      mergedBabies.push({
+        id: b.id,
+        name: b.name,
+        birthDate: b.birth_date,
+        createdAt: b.created_at,
+        photo: b.photo ?? undefined,
+        motherName: b.mother_name ?? undefined,
+        fatherName: b.father_name ?? undefined,
+      })
+      mergedIds.add(b.id)
     }
 
-    const { data: cloudRecords, error: recordError } = await supabase
-      .from('records')
-      .select('*')
-      .in('baby_id', babyIds)
+    for (const b of state.babies) {
+      if (!mergedIds.has(b.id)) {
+        mergedBabies.push(b)
+      }
+      mergedIds.add(b.id)
+    }
 
-    if (recordError) throw recordError
+    for (const b of state.babies) {
+      if (!mergedIds.has(b.id)) {
+        mergedBabies.push(b)
+      }
+      mergedIds.add(b.id)
+    }
 
-    const parsedRecords: BabyRecord[] = (cloudRecords ?? []).map(r => r.data as BabyRecord)
-    const selectedId = babies.length > 0 ? babies[0].id : null
+    const babyIds = mergedBabies.map(b => b.id)
+    let cloudRecords: { id: string; data: BabyRecord; user_id: string }[] = []
 
-    loadBabies(babies, selectedId)
-    loadRecords(parsedRecords)
+    if (babyIds.length > 0) {
+      const { data, error: recordError } = await supabase
+        .from('records')
+        .select('*')
+        .in('baby_id', babyIds)
 
-    return { babies: babies.length, records: parsedRecords.length }
-  }, [loadBabies, loadRecords])
+      if (recordError) throw recordError
+      cloudRecords = data ?? []
+    }
+
+    const mergedRecords = new Map<string, BabyRecord>()
+
+    for (const r of cloudRecords) {
+      if (r.data) mergedRecords.set(r.id, r.data as BabyRecord)
+    }
+
+    for (const r of records) {
+      if (!mergedRecords.has(r.id)) {
+        mergedRecords.set(r.id, r)
+      }
+    }
+
+    const selectedId = mergedBabies.length > 0
+      ? (state.selectedBabyId && mergedBabies.find(b => b.id === state.selectedBabyId) ? state.selectedBabyId : mergedBabies[0].id)
+      : null
+
+    loadBabies(mergedBabies, selectedId)
+    loadRecords(Array.from(mergedRecords.values()))
+
+    return { babies: mergedBabies.length, records: mergedRecords.size }
+  }, [loadBabies, loadRecords, state.babies, state.selectedBabyId, records])
 
   const subscribeToChanges = useCallback(() => {
     if (!supabase) return
-
     channelRef.current = supabase
       .channel('records-changes')
       .on('postgres_changes',
@@ -134,10 +217,8 @@ export function useSync() {
       unsubscribe()
       return
     }
-
     pullFromCloud().catch(() => {})
     subscribeToChanges()
-
     return () => unsubscribe()
   }, [user?.id])
 

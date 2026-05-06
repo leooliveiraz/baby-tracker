@@ -104,6 +104,7 @@ type RecordAction =
   | { type: 'UPDATE_RECORD'; payload: BabyRecord }
   | { type: 'DELETE_RECORD'; payload: string }
   | { type: 'LOAD_RECORDS'; payload: BabyRecord[] }
+  | { type: 'DELETE_RECORDS_BY_BABY'; payload: string }
 
 const STORAGE_KEY = 'baby-tracker-records'
 
@@ -125,6 +126,8 @@ function recordsReducer(state: BabyRecord[], action: RecordAction): BabyRecord[]
       return state.filter(r => r.id !== action.payload)
     case 'LOAD_RECORDS':
       return action.payload
+    case 'DELETE_RECORDS_BY_BABY':
+      return state.filter(r => r.babyId !== action.payload)
     default:
       return state
   }
@@ -136,6 +139,7 @@ interface RecordsContextType {
   updateRecord: (record: BabyRecord) => void
   deleteRecord: (id: string) => void
   loadRecords: (records: BabyRecord[]) => void
+  deleteRecordsByBaby: (babyId: string) => void
 }
 
 const RecordsContext = createContext<RecordsContextType | null>(null)
@@ -152,9 +156,10 @@ export function RecordsProvider({ children }: { children: ReactNode }) {
   const updateRecord = (record: BabyRecord) => dispatch({ type: 'UPDATE_RECORD', payload: record })
   const deleteRecord = (id: string) => dispatch({ type: 'DELETE_RECORD', payload: id })
   const loadRecords = (newRecords: BabyRecord[]) => dispatch({ type: 'LOAD_RECORDS', payload: newRecords })
+  const deleteRecordsByBaby = (babyId: string) => dispatch({ type: 'DELETE_RECORDS_BY_BABY', payload: babyId })
 
   return (
-    <RecordsContext.Provider value={{ records, addRecord, updateRecord, deleteRecord, loadRecords }}>
+    <RecordsContext.Provider value={{ records, addRecord, updateRecord, deleteRecord, loadRecords, deleteRecordsByBaby }}>
       {children}
     </RecordsContext.Provider>
   )

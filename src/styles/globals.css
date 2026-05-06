@@ -16,6 +16,8 @@
   --border: var(--lilac-100);
   --header-bg: var(--white);
   --select-bg: var(--lilac-50);
+  --input-bg: #FFFFFF;
+  --input-border: var(--lilac-100);
   --danger: #E74C3C;
   --success: #2ECC71;
 }
@@ -37,6 +39,8 @@
   --border: #3D2848;
   --header-bg: #1E1E32;
   --select-bg: #2D1B36;
+  --input-bg: #2D1B36;
+  --input-border: #5D3D6E;
 }
 
 *, *::before, *::after {
@@ -75,7 +79,30 @@ button {
 
 input, select, textarea {
   font: inherit;
-  color: inherit;
+  color: var(--text);
+  background: var(--input-bg);
+  border: 2px solid var(--input-border);
+  border-radius: var(--radius);
+  padding: 10px 14px;
+}
+
+input::placeholder, textarea::placeholder, select::placeholder {
+  color: var(--text-muted);
+  opacity: 0.7;
+}
+
+input[type="date"] {
+  color-scheme: var(--date-scheme, light);
+}
+
+[data-theme="dark"] input[type="date"] {
+  --date-scheme: dark;
+}
+
+[data-theme="dark"] input,
+[data-theme="dark"] select,
+[data-theme="dark"] textarea {
+  color-scheme: dark;
 }
 
 a {

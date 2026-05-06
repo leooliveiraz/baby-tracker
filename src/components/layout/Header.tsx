@@ -85,18 +85,17 @@ export default function Header({ onAddBaby }: HeaderProps) {
               borderRadius: '50%',
               background: 'var(--lilac-500)',
               color: 'var(--white)',
+              border: '2px solid var(--lilac-500)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              fontSize: '1.2rem',
-              fontWeight: 400,
+              fontSize: '0.95rem',
               lineHeight: 1,
-              border: '2px solid var(--lilac-500)',
               boxShadow: 'var(--shadow)',
             }}
             aria-label="Adicionar bebê"
           >
-            ＋
+            ➕
           </button>
 
           <button

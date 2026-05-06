@@ -190,7 +190,6 @@ export default function BabyFormModal({ onClose, baby }: Props) {
             style={{
               padding: '10px 14px', borderRadius: 'var(--radius)',
               border: '2px solid var(--lilac-100)', fontSize: '1rem',
-              colorScheme: 'light',
             }}
           />
         </div>

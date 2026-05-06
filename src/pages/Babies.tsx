@@ -1,11 +1,13 @@
 import { useState } from 'react'
 import { useBabyContext } from '../context/BabyContext'
+import { useRecords } from '../context/RecordsContext'
 import BabyFormModal from './BabyFormModal'
 import PhotoAvatar from '../components/ui/PhotoAvatar'
 import type { Baby } from '../context/BabyContext'
 
 export default function Babies() {
   const { state, selectBaby, removeBaby, selectedBaby } = useBabyContext()
+  const { deleteRecordsByBaby } = useRecords()
   const [showForm, setShowForm] = useState(false)
   const [editBaby, setEditBaby] = useState<Baby | null>(null)
 
@@ -74,7 +76,13 @@ export default function Babies() {
             </button>
 
             <button
-              onClick={e => { e.stopPropagation(); if (confirm(`Remover ${baby.name}?`)) removeBaby(baby.id) }}
+              onClick={e => {
+                e.stopPropagation()
+                if (confirm(`Remover ${baby.name} e todos os seus registros?`)) {
+                  removeBaby(baby.id)
+                  deleteRecordsByBaby(baby.id)
+                }
+              }}
               style={{
                 width: 32, height: 32, borderRadius: '50%',
                 background: 'var(--lilac-100)', fontSize: '0.9rem',

@@ -3,6 +3,8 @@ import { useBabyContext } from '../context/BabyContext'
 import { useRecords, getBabyRecords, type DiaperRecord } from '../context/RecordsContext'
 import { formatTime, isToday } from '../utils/time'
 import { useToast } from '../context/ToastContext'
+import SwipeableCard from '../components/ui/SwipeableCard'
+import { playDiaperSound, isSoundEnabled } from '../utils/sounds'
 
 const consistencyOptions = ['normal', 'soft', 'liquid'] as const
 
@@ -45,6 +47,7 @@ export default function Diaper() {
       consistency: diaperType === 'wet' ? undefined : 'normal',
     }
     addRecord(record)
+    if (isSoundEnabled()) playDiaperSound()
     showToast(diaperType === 'wet' ? '💦 Xixi registrado!' : diaperType === 'dirty' ? '💩 Cocô registrado!' : 'Registrado!', 'success')
   }
 
@@ -80,7 +83,8 @@ export default function Diaper() {
           </p>
         )}
         {todayRecords.map(r => (
-          <div key={r.id} className="card" style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <SwipeableCard key={r.id} onDelete={() => { deleteRecord(r.id); showToast('Removido!', 'success') }}>
+            <div className="card" style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
             <span style={{ fontSize: '1.5rem' }}>
               {r.diaperType === 'wet' ? '💦' : r.diaperType === 'dirty' ? '💩' : '💦💩'}
             </span>
@@ -132,8 +136,9 @@ export default function Diaper() {
             >
               ✕
             </button>
-          </div>
-        ))}
+            </div>
+            </SwipeableCard>
+          ))}
       </div>
     </div>
   )

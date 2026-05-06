@@ -4,6 +4,7 @@ import { useBabyContext } from '../context/BabyContext'
 import { useRecords } from '../context/RecordsContext'
 import { useSync } from '../context/useSync'
 import { useNavigate } from 'react-router-dom'
+import { isSoundEnabled, toggleSound } from '../utils/sounds'
 
 export default function Profile() {
   const { user, signOut } = useAuth()
@@ -14,6 +15,7 @@ export default function Profile() {
   const [syncing, setSyncing] = useState(false)
   const [syncResult, setSyncResult] = useState('')
   const [caregiverEmail, setCaregiverEmail] = useState('')
+  const [soundOn, setSoundOn] = useState(isSoundEnabled())
 
   useEffect(() => {
     if (!user) navigate('/login')
@@ -94,6 +96,33 @@ export default function Profile() {
             style={{ flex: 1, padding: '10px 14px', borderRadius: 'var(--radius)', border: '2px solid var(--lilac-100)', fontSize: '0.9rem' }}
           />
           <button onClick={inviteCaregiver} className="btn btn-primary btn-sm">Convidar</button>
+        </div>
+      </div>
+
+      <div className="card" style={{ marginBottom: 16 }}>
+        <p style={{ fontWeight: 600, color: 'var(--lilac-900)', marginBottom: 12 }}>
+          🔊 Som
+        </p>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <span className="text-muted" style={{ fontSize: '0.85rem' }}>
+            Sons ao registrar (fralda, sono, etc.)
+          </span>
+          <button
+            onClick={() => { const v = !soundOn; setSoundOn(v); toggleSound(v) }}
+            style={{
+              width: 52, height: 28, borderRadius: 14,
+              background: soundOn ? 'var(--lilac-500)' : 'var(--lilac-100)',
+              border: 'none', cursor: 'pointer', position: 'relative',
+              transition: 'background 0.2s',
+            }}
+          >
+            <div style={{
+              width: 22, height: 22, borderRadius: '50%',
+              background: 'white', position: 'absolute', top: 3,
+              left: soundOn ? 27 : 3, transition: 'left 0.2s',
+              boxShadow: '0 1px 3px rgba(0,0,0,0.2)',
+            }} />
+          </button>
         </div>
       </div>
 

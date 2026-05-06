@@ -15,7 +15,7 @@ export default defineConfig({
       },
       manifest: {
         name: 'Baby Tracker',
-        short_name: 'BabyTracker',
+        short_name: 'Baby Tracker',
         description: 'Acompanhamento do seu bebê',
         theme_color: '#9B59B6',
         background_color: '#FFFFFF',

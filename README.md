@@ -4,6 +4,8 @@ Aplicação PWA para acompanhamento de bebês: mamadas, fraldas, sono, atividade
 
 **🔗 Live:** https://leooliveiraz.github.io/baby-tracker/
 
+> ⚠️ **Aviso importante:** Este aplicativo foi desenvolvido para auxiliar no acompanhamento do crescimento e da rotina do bebê, servindo como ferramenta de registro e organização de informações. Ele **não substitui** consultas médicas, orientação profissional ou qualquer autoridade de saúde. Sempre consulte um pediatra ou profissional de saúde qualificado para avaliações, diagnósticos ou decisões sobre a saúde do seu bebê.
+
 ## Funcionalidades
 
 | Categoria | O que registra |

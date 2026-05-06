@@ -3,6 +3,7 @@ import { HashRouter, Routes, Route } from 'react-router-dom'
 import AppShell from './components/layout/AppShell'
 import ToastContainer from './components/ui/ToastContainer'
 import ErrorBoundary from './components/ui/ErrorBoundary'
+import DisclaimerModal from './components/ui/DisclaimerModal'
 import { useToast } from './context/ToastContext'
 import Dashboard from './pages/Dashboard'
 import Babies from './pages/Babies'
@@ -36,6 +37,7 @@ export default function App() {
   return (
     <>
       <ToastContainer />
+      <DisclaimerModal />
       <ErrorBoundary>
         <HashRouter>
           <Routes>

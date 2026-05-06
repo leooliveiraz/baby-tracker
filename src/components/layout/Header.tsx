@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react'
 import { useBabyContext } from '../../context/BabyContext'
 import { useAuth } from '../../context/AuthContext'
 import { useTheme } from '../../context/ThemeContext'
@@ -12,6 +13,27 @@ export default function Header({ onAddBaby }: HeaderProps) {
   const { user } = useAuth()
   const { theme, toggleTheme } = useTheme()
   const navigate = useNavigate()
+  const [installEvent, setInstallEvent] = useState<Event | null>(null)
+
+  useEffect(() => {
+    const handler = (e: Event) => {
+      e.preventDefault()
+      setInstallEvent(e)
+    }
+    const installed = () => setInstallEvent(null)
+    window.addEventListener('beforeinstallprompt', handler)
+    window.addEventListener('appinstalled', installed)
+    return () => {
+      window.removeEventListener('beforeinstallprompt', handler)
+      window.removeEventListener('appinstalled', installed)
+    }
+  }, [])
+
+  const handleInstall = () => {
+    if (!installEvent) return
+    ;(installEvent as unknown as { prompt: () => Promise<void> }).prompt()
+    setInstallEvent(null)
+  }
 
   return (
     <header style={{
@@ -94,6 +116,26 @@ export default function Header({ onAddBaby }: HeaderProps) {
           >
             {theme === 'dark' ? '☀️' : '🌙'}
           </button>
+
+          {installEvent && (
+            <button
+              onClick={handleInstall}
+              style={{
+                width: 36,
+                height: 36,
+                borderRadius: '50%',
+                background: 'var(--lilac-100)',
+                border: '2px solid var(--lilac-500)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: '1rem',
+              }}
+              aria-label="Instalar app"
+            >
+              ⬇️
+            </button>
+          )}
 
           <button
             onClick={() => navigate(user ? '/profile' : '/login')}

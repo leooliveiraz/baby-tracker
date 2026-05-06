@@ -1,3 +1,4 @@
+import { lazy } from 'react'
 import { HashRouter, Routes, Route } from 'react-router-dom'
 import { useRegisterSW } from 'virtual:pwa-register/react'
 import AppShell from './components/layout/AppShell'
@@ -9,13 +10,14 @@ import Feeding from './pages/Feeding'
 import Diaper from './pages/Diaper'
 import Sleep from './pages/Sleep'
 import Activities from './pages/Activities'
-import Growth from './pages/Growth'
-import Health from './pages/Health'
-import Reports from './pages/Reports'
 import Appointments from './pages/Appointments'
 import Backup from './pages/Backup'
 import Login from './pages/Login'
 import Profile from './pages/Profile'
+
+const Growth = lazy(() => import('./pages/Growth'))
+const Health = lazy(() => import('./pages/Health'))
+const Reports = lazy(() => import('./pages/Reports'))
 
 export default function App() {
   const { needRefresh, updateServiceWorker } = useRegisterSW()

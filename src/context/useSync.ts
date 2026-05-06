@@ -43,15 +43,20 @@ export function useSync() {
     // ── Sync babies ──────────────────────────
 
     const { error: babyError } = await supabase.from('babies').upsert(
-      babiesWithUrls.map(b => ({
-        id: b.id,
-        name: b.name,
-        birth_date: b.birthDate,
-        photo: b.photo,
-        mother_name: b.motherName ?? null,
-        father_name: b.fatherName ?? null,
-        created_by: u.id,
-      }))
+      babiesWithUrls.map(b => {
+        const payload: Record<string, unknown> = {
+          id: b.id,
+          name: b.name,
+          birth_date: b.birthDate,
+          mother_name: b.motherName ?? null,
+          father_name: b.fatherName ?? null,
+          created_by: u.id,
+        }
+        if (b.photo !== undefined && b.photo !== null) {
+          payload.photo = b.photo
+        }
+        return payload
+      })
     )
     if (babyError) throw babyError
 

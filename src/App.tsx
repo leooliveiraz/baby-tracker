@@ -1,8 +1,9 @@
-import { lazy } from 'react'
+import { lazy, useEffect } from 'react'
 import { HashRouter, Routes, Route } from 'react-router-dom'
 import AppShell from './components/layout/AppShell'
 import ToastContainer from './components/ui/ToastContainer'
 import ErrorBoundary from './components/ui/ErrorBoundary'
+import { useToast } from './context/ToastContext'
 import Dashboard from './pages/Dashboard'
 import Babies from './pages/Babies'
 import Feeding from './pages/Feeding'
@@ -21,6 +22,16 @@ const Health = lazy(() => import('./pages/Health'))
 const Reports = lazy(() => import('./pages/Reports'))
 
 export default function App() {
+  const { showToast } = useToast()
+
+  useEffect(() => {
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.addEventListener('controllerchange', () => {
+        showToast('🆕 App atualizado para nova versão!', 'success')
+      })
+    }
+  }, [])
+
   return (
     <>
       <ToastContainer />

@@ -13,6 +13,7 @@ import Growth from './pages/Growth'
 import Health from './pages/Health'
 import Reports from './pages/Reports'
 import Appointments from './pages/Appointments'
+import Backup from './pages/Backup'
 import Login from './pages/Login'
 import Profile from './pages/Profile'
 
@@ -50,6 +51,7 @@ export default function App() {
               <Route path="/health" element={<Health />} />
               <Route path="/reports" element={<Reports />} />
               <Route path="/appointments" element={<Appointments />} />
+              <Route path="/backup" element={<Backup />} />
               <Route path="/login" element={<Login />} />
               <Route path="/profile" element={<Profile />} />
             </Route>

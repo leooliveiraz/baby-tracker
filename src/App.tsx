@@ -4,6 +4,7 @@ import AppShell from './components/layout/AppShell'
 import ToastContainer from './components/ui/ToastContainer'
 import ErrorBoundary from './components/ui/ErrorBoundary'
 import DisclaimerModal from './components/ui/DisclaimerModal'
+import ReminderChecker from './components/ReminderChecker'
 import { useToast } from './context/ToastContext'
 import Dashboard from './pages/Dashboard'
 import Babies from './pages/Babies'
@@ -16,6 +17,7 @@ import Backup from './pages/Backup'
 import Timeline from './pages/Timeline'
 import Babysitter from './pages/Babysitter'
 import Diary from './pages/Diary'
+import Reminders from './pages/Reminders'
 import Login from './pages/Login'
 import Profile from './pages/Profile'
 
@@ -38,6 +40,7 @@ export default function App() {
     <>
       <ToastContainer />
       <DisclaimerModal />
+      <ReminderChecker />
       <ErrorBoundary>
         <HashRouter>
           <Routes>
@@ -56,6 +59,7 @@ export default function App() {
               <Route path="/timeline" element={<Timeline />} />
               <Route path="/babysitter" element={<Babysitter />} />
               <Route path="/diary" element={<Diary />} />
+              <Route path="/reminders" element={<Reminders />} />
               <Route path="/login" element={<Login />} />
               <Route path="/profile" element={<Profile />} />
             </Route>

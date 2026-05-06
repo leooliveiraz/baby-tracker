@@ -146,6 +146,11 @@ export default function Dashboard() {
           <span style={{ fontSize: '0.8rem', fontWeight: 600 }}>Diário</span>
           <span className="text-muted" style={{ fontSize: '0.7rem' }}>Notas do dia</span>
         </button>
+        <button onClick={() => navigate('/reminders')} className="btn btn-outline" style={{ flexDirection: 'column', gap: 2, padding: 12 }}>
+          <span style={{ fontSize: '1.3rem' }}>🔔</span>
+          <span style={{ fontSize: '0.8rem', fontWeight: 600 }}>Lembretes</span>
+          <span className="text-muted" style={{ fontSize: '0.7rem' }}>Notificações</span>
+        </button>
       </div>
 
       <div className="card">

@@ -1,6 +1,6 @@
 # Baby Tracker 🍼
 
-Aplicação PWA para acompanhamento de bebês: mamadas, fraldas, sono, atividades, crescimento, saúde e consultas médicas.
+Aplicação PWA para acompanhamento de bebês: mamadas, fraldas, sono, atividades, crescimento, saúde, consultas médicas e diário.
 
 **🔗 Live:** https://leooliveiraz.github.io/baby-tracker/
 
@@ -8,15 +8,22 @@ Aplicação PWA para acompanhamento de bebês: mamadas, fraldas, sono, atividade
 
 | Categoria | O que registra |
 |-----------|----------------|
-| 🥛 Mamadas | Seio (E/D), fórmula, volume, duração, timer |
-| 👶 Fraldas | Xixi, cocô, consistência |
-| 😴 Sono | Início/fim, timer ativo, local, qualidade |
-| 🧸 Atividades | Tummy time, banho, leitura, tela |
+| 🥛 Mamadas | Seio (E/D), fórmula, volume, duração, timer com edição |
+| 👶 Fraldas | Xixi, cocô, consistência com swipe to delete |
+| 😴 Sono | Início/fim, timer ativo, local, qualidade, entrada manual |
+| 🧸 Atividades | Tummy time, banho, leitura, tela com duração |
 | 📈 Crescimento | Peso, altura, PC com gráficos e percentis OMS |
 | 💉 Saúde | Vacinas (calendário BR), medicamentos, febre |
 | 🏥 Consultas | Médico, especialidade, data, local |
+| 📖 Diário | Notas diárias sobre o bebê |
+| 👶 Modo Babá | Botões gigantes para registro rápido |
+| 📋 Timeline | Linha do tempo visual com todos os registros |
+| 📊 Relatórios | Exportar dados em PDF/CSV com período customizado |
+| 💾 Backup | Exportar/Importar dados em JSON |
 | 👥 Compartilhamento | Sincronização multi-cuidador via Supabase |
-| 📊 Relatórios | Exportar dados em PDF/CSV |
+| 🌙 Modo escuro | Toggle no header, respeita preferência do sistema |
+| 🔊 Sons | Feedback sonoro ao registrar (opt-in) |
+| 📸 Fotos | Upload de foto do bebê com cache offline |
 
 ## Tecnologias
 
@@ -25,22 +32,24 @@ Aplicação PWA para acompanhamento de bebês: mamadas, fraldas, sono, atividade
 - **Recharts** — gráficos de crescimento e resumo
 - **Supabase** — autenticação, banco de dados e storage
 - **jsPDF** + **jspdf-autotable** — exportação de relatórios
-- **vite-plugin-pwa** — service worker e manifest PWA
-- **Paleta lilás** com variáveis CSS
+- **vite-plugin-pwa** — service worker, manifest e auto-update
+- **Paleta lilás** com variáveis CSS e modo escuro
+- **IndexedDB** — cache offline de fotos
+- **Vitest** + **@testing-library** — testes automatizados
 
 ## Pré-requisitos
 
 - Node.js 18+
-- npm
+- yarn
 
 ## Como rodar localmente
 
 ```bash
 # 1. Instalar dependências
-npm install
+yarn
 
 # 2. Iniciar servidor de desenvolvimento
-npm run dev
+yarn dev
 ```
 
 Acesse http://localhost:5173
@@ -49,10 +58,10 @@ Acesse http://localhost:5173
 
 ```bash
 # Build de produção
-npm run build
+yarn build
 
 # Preview do build localmente
-npm run preview
+yarn preview
 ```
 
 ## Deploy no GitHub Pages
@@ -60,12 +69,22 @@ npm run preview
 O deploy é feito via `gh-pages` na branch `gh-pages`.
 
 ```bash
-npm run deploy
+yarn deploy
 ```
 
 Após o deploy, ative o GitHub Pages em **Settings > Pages**:
 - Source: `Deploy from a branch`
 - Branch: `gh-pages` / `/ (root)`
+
+## Testes
+
+```bash
+# Executar testes uma vez
+yarn test
+
+# Modo watch (re-executa ao salvar)
+yarn test:watch
+```
 
 ## Supabase (opcional)
 
@@ -96,23 +115,36 @@ VITE_SUPABASE_ANON_KEY
 O ícone principal está em `public/favicon.svg` (caderninho com bebê na capa). Para gerar os PNGs:
 
 ```bash
-npm run generate-icons
+yarn generate-icons
 ```
 
 ## Estrutura do projeto
 
 ```
 src/
+├── __tests__/          # Testes automatizados (Vitest)
 ├── components/
-│   ├── layout/       # AppShell, Header, BottomNav
-│   └── ui/           # PhotoAvatar
-├── context/          # BabyContext, RecordsContext, AuthContext, useSync
-├── data/             # Dados de referência OMS
-├── lib/              # Supabase client, storage
-├── pages/            # Todas as páginas do app
-├── styles/           # CSS global com paleta lilás
-└── utils/            # Time helpers, export CSV/PDF
+│   ├── layout/         # AppShell, Header, BottomNav
+│   └── ui/             # PhotoAvatar, Toast, Spinner, SwipeableCard, ErrorBoundary
+├── context/            # BabyContext, RecordsContext, AuthContext, ThemeContext, ToastContext, useSync
+├── data/               # Dados de referência OMS
+├── lib/                # Supabase client, storage (fotos)
+├── pages/              # Todas as páginas do app
+├── styles/             # CSS global com paleta lilás + modo escuro
+└── utils/              # Time helpers, export CSV/PDF, sounds
 ```
+
+## Scripts disponíveis
+
+| Comando | Descrição |
+|---------|-----------|
+| `yarn dev` | Inicia servidor de desenvolvimento |
+| `yarn build` | Build de produção |
+| `yarn preview` | Preview do build |
+| `yarn test` | Executa testes |
+| `yarn test:watch` | Testes em modo watch |
+| `yarn deploy` | Build + deploy no GitHub Pages |
+| `yarn generate-icons` | Gera PNGs a partir do SVG |
 
 ## Licença
 

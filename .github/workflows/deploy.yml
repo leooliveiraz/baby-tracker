@@ -3,8 +3,8 @@ name: Deploy Baby Tracker to GitHub Pages
 on:
   push:
     branches:
-      - main  # ou 'master' se sua branch principal for master
-  workflow_dispatch: # Permite execução manual
+      - main
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -20,9 +20,9 @@ jobs:
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
-    
+
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -31,13 +31,16 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '18'
-          cache: 'npm'
+          cache: 'yarn'
+
+      - name: Enable Corepack (Yarn)
+        run: corepack enable
 
       - name: Install dependencies
-        run: npm ci
+        run: yarn install --frozen-lockfile
 
       - name: Build the project
-        run: npm run build
+        run: yarn build
         env:
           VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
           VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}

@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useBabyContext } from '../context/BabyContext'
 import { useRecords, getBabyRecords, type AppointmentRecord } from '../context/RecordsContext'
 import { formatDate, formatTime } from '../utils/time'
+import { useToast } from '../context/ToastContext'
 
 const specialties = [
   'Pediatra', 'Neonatologista', 'Neurologista', 'Oftalmologista',
@@ -12,6 +13,7 @@ const specialties = [
 export default function Appointments() {
   const { selectedBaby, state } = useBabyContext()
   const { records, addRecord, deleteRecord } = useRecords()
+  const { showToast } = useToast()
   const [showForm, setShowForm] = useState(false)
   const [doctor, setDoctor] = useState('')
   const [specialty, setSpecialty] = useState('Pediatra')
@@ -60,6 +62,7 @@ export default function Appointments() {
       notes: notes.trim() || undefined,
     }
     addRecord(record)
+    showToast('🏥 Consulta registrada!', 'success')
     setDoctor('')
     setSpecialty('Pediatra')
     setAppointmentDate('')
@@ -138,7 +141,7 @@ export default function Appointments() {
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
           <p className="text-muted" style={{ fontWeight: 600 }}>🟢 Próximas ({upcoming.length})</p>
           {upcoming.map(r => (
-            <AppointmentCard key={r.id} record={r} onDelete={deleteRecord} />
+            <AppointmentCard key={r.id} record={r} onDelete={deleteRecord} showToast={showToast} />
           ))}
         </div>
       )}
@@ -147,7 +150,7 @@ export default function Appointments() {
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
           <p className="text-muted" style={{ fontWeight: 600 }}>⚪ Realizadas ({past.length})</p>
           {past.map(r => (
-            <AppointmentCard key={r.id} record={r} onDelete={deleteRecord} />
+            <AppointmentCard key={r.id} record={r} onDelete={deleteRecord} showToast={showToast} />
           ))}
         </div>
       )}
@@ -155,7 +158,7 @@ export default function Appointments() {
   )
 }
 
-function AppointmentCard({ record, onDelete }: { record: AppointmentRecord; onDelete: (id: string) => void }) {
+function AppointmentCard({ record, onDelete, showToast }: { record: AppointmentRecord; onDelete: (id: string) => void; showToast: (msg: string, type?: 'success' | 'error' | 'info') => void }) {
   const isUpcoming = new Date(record.appointmentDate) >= new Date()
   return (
     <div className="card" style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
@@ -175,7 +178,7 @@ function AppointmentCard({ record, onDelete }: { record: AppointmentRecord; onDe
           </div>
         )}
       </div>
-      <button onClick={() => { if (confirm('Remover consulta?')) onDelete(record.id) }}
+      <button onClick={() => { if (confirm('Remover consulta?')) { onDelete(record.id); showToast('Removida!', 'success') } }}
         style={{ width: 32, height: 32, borderRadius: '50%', background: 'var(--lilac-100)', fontSize: '0.9rem' }}
       >✕</button>
     </div>

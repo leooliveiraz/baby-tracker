@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useBabyContext } from '../context/BabyContext'
 import { useRecords, getBabyRecords, type ActivityRecord } from '../context/RecordsContext'
 import { formatTime, formatDuration, isToday } from '../utils/time'
+import { useToast } from '../context/ToastContext'
 
 const activityTypes = [
   { key: 'tummy_time' as const, icon: '🧎', label: 'Tummy Time' },
@@ -13,6 +14,7 @@ const activityTypes = [
 export default function Activities() {
   const { selectedBaby, state } = useBabyContext()
   const { records, addRecord, deleteRecord } = useRecords()
+  const { showToast } = useToast()
 
   const babyRecords = selectedBaby
     ? getBabyRecords<ActivityRecord>(records, selectedBaby.id, 'activity')
@@ -49,6 +51,7 @@ export default function Activities() {
       duration: duration ? Number(duration) : undefined,
     }
     addRecord(record)
+    showToast('🧸 Atividade registrada!', 'success')
     setActiveForm(null)
     setDuration('')
   }
@@ -113,7 +116,7 @@ export default function Activities() {
                 </div>
               </div>
               <button
-                onClick={() => { if (confirm('Remover?')) deleteRecord(r.id) }}
+                onClick={() => { if (confirm('Remover?')) { deleteRecord(r.id); showToast('Removido!', 'success') } }}
                 style={{ width: 32, height: 32, borderRadius: '50%', background: 'var(--lilac-100)', fontSize: '0.9rem' }}
               >
                 ✕

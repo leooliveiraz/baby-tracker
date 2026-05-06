@@ -1,6 +1,7 @@
 import { HashRouter, Routes, Route } from 'react-router-dom'
 import { useRegisterSW } from 'virtual:pwa-register/react'
 import AppShell from './components/layout/AppShell'
+import ToastContainer from './components/ui/ToastContainer'
 import Dashboard from './pages/Dashboard'
 import Babies from './pages/Babies'
 import Feeding from './pages/Feeding'
@@ -33,6 +34,7 @@ export default function App() {
           </div>
         </div>
       )}
+      <ToastContainer />
       <HashRouter>
         <Routes>
           <Route element={<AppShell />}>

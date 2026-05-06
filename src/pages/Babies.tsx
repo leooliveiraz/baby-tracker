@@ -3,11 +3,13 @@ import { useBabyContext } from '../context/BabyContext'
 import { useRecords } from '../context/RecordsContext'
 import BabyFormModal from './BabyFormModal'
 import PhotoAvatar from '../components/ui/PhotoAvatar'
+import { useToast } from '../context/ToastContext'
 import type { Baby } from '../context/BabyContext'
 
 export default function Babies() {
   const { state, selectBaby, removeBaby, selectedBaby } = useBabyContext()
   const { deleteRecordsByBaby } = useRecords()
+  const { showToast } = useToast()
   const [showForm, setShowForm] = useState(false)
   const [editBaby, setEditBaby] = useState<Baby | null>(null)
 
@@ -81,6 +83,7 @@ export default function Babies() {
                 if (confirm(`Remover ${baby.name} e todos os seus registros?`)) {
                   removeBaby(baby.id)
                   deleteRecordsByBaby(baby.id)
+                  showToast(`${baby.name} removido!`, 'success')
                 }
               }}
               style={{

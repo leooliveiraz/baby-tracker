@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useBabyContext } from '../context/BabyContext'
 import { useRecords, getBabyRecords, type VaccineRecord, type MedicationRecord, type FeverRecord } from '../context/RecordsContext'
 import { formatDate, formatTime } from '../utils/time'
+import { useToast } from '../context/ToastContext'
 
 type Tab = 'vaccines' | 'medications' | 'fever'
 
@@ -23,6 +24,7 @@ const vaccineSchedule: { name: string; doses: { label: string; age: string }[] }
 export default function Health() {
   const { selectedBaby, state } = useBabyContext()
   const { records, addRecord, deleteRecord } = useRecords()
+  const { showToast } = useToast()
   const [tab, setTab] = useState<Tab>('vaccines')
 
   const [medName, setMedName] = useState('')
@@ -65,6 +67,7 @@ export default function Health() {
       status,
     }
     addRecord(record)
+    showToast(`💉 ${vaccineName} - ${doseLabel} registrada!`, 'success')
   }
 
   const addMedication = () => {
@@ -78,6 +81,7 @@ export default function Health() {
       timestamp: new Date(medTime).toISOString(),
     }
     addRecord(record)
+    showToast('💊 Medicamento registrado!', 'success')
     setMedName('')
     setMedDose('')
   }
@@ -92,6 +96,7 @@ export default function Health() {
       temperature: Number(feverTemp),
     }
     addRecord(record)
+    showToast(`🌡 ${feverTemp}°C registrado!`, 'success')
     setFeverTemp('')
   }
 
@@ -204,7 +209,7 @@ export default function Health() {
                 <div style={{ fontWeight: 600 }}>{r.medicationName} - {r.dose}</div>
                 <div className="text-muted">{formatDate(r.timestamp)} às {formatTime(r.timestamp)}</div>
               </div>
-              <button onClick={() => { if (confirm('Remover?')) deleteRecord(r.id) }}
+              <button onClick={() => { if (confirm('Remover?')) { deleteRecord(r.id); showToast('Removido!', 'success') } }}
                 style={{ width: 32, height: 32, borderRadius: '50%', background: 'var(--lilac-100)', fontSize: '0.9rem' }}
               >✕</button>
             </div>

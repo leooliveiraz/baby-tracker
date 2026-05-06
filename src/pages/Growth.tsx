@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useBabyContext } from '../context/BabyContext'
 import { useRecords, getBabyRecords, type GrowthRecord } from '../context/RecordsContext'
 import { formatDate, calculateAge } from '../utils/time'
+import { useToast } from '../context/ToastContext'
 import { getOMSAtMonth, monthsBetween, formatAgeMonths } from '../data/oms'
 import {
   LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer,
@@ -19,6 +20,7 @@ const metricConfig: Record<Metric, { label: string; unit: string; color: string;
 export default function Growth() {
   const { selectedBaby, state } = useBabyContext()
   const { records, addRecord, deleteRecord } = useRecords()
+  const { showToast } = useToast()
   const [metric, setMetric] = useState<Metric>('weight')
   const [date, setDate] = useState(new Date().toISOString().split('T')[0])
   const [weight, setWeight] = useState('')
@@ -53,6 +55,7 @@ export default function Growth() {
       headCircumference: hc ? Number(hc) : undefined,
     }
     addRecord(record)
+    showToast('📏 Medição salva!', 'success')
     setWeight('')
     setHeight('')
     setHc('')
@@ -179,7 +182,7 @@ export default function Growth() {
                 </div>
               </div>
               <button
-                onClick={() => { if (confirm('Remover?')) deleteRecord(r.id) }}
+                onClick={() => { if (confirm('Remover?')) { deleteRecord(r.id); showToast('Removido!', 'success') } }}
                 style={{ width: 32, height: 32, borderRadius: '50%', background: 'var(--lilac-100)', fontSize: '0.9rem' }}
               >
                 ✕

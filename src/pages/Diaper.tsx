@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useBabyContext } from '../context/BabyContext'
 import { useRecords, getBabyRecords, type DiaperRecord } from '../context/RecordsContext'
 import { formatTime, isToday } from '../utils/time'
+import { useToast } from '../context/ToastContext'
 
 const consistencyOptions = ['normal', 'soft', 'liquid'] as const
 
@@ -14,6 +15,7 @@ const consistencyLabel: Record<string, string> = {
 export default function Diaper() {
   const { selectedBaby, state } = useBabyContext()
   const { records, addRecord, deleteRecord, updateRecord } = useRecords()
+  const { showToast } = useToast()
   const [editingId, setEditingId] = useState<string | null>(null)
   const [editConsistency, setEditConsistency] = useState<string>('normal')
 
@@ -43,6 +45,7 @@ export default function Diaper() {
       consistency: diaperType === 'wet' ? undefined : 'normal',
     }
     addRecord(record)
+    showToast(diaperType === 'wet' ? '💦 Xixi registrado!' : diaperType === 'dirty' ? '💩 Cocô registrado!' : 'Registrado!', 'success')
   }
 
   const saveConsistency = () => {
@@ -124,7 +127,7 @@ export default function Diaper() {
             )}
 
             <button
-              onClick={() => { if (confirm('Remover?')) deleteRecord(r.id) }}
+              onClick={() => { if (confirm('Remover?')) { deleteRecord(r.id); showToast('Removido!', 'success') } }}
               style={{ width: 32, height: 32, borderRadius: '50%', background: 'var(--lilac-100)', fontSize: '0.9rem' }}
             >
               ✕

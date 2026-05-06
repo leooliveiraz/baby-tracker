@@ -2,12 +2,17 @@ import { useState, useEffect } from 'react'
 import { useBabyContext } from '../context/BabyContext'
 import { useRecords, getBabyRecords, type FeedingRecord } from '../context/RecordsContext'
 import { formatTime, formatDuration, calcDuration, isToday } from '../utils/time'
+import { useToast } from '../context/ToastContext'
 
 export default function Feeding() {
   const { selectedBaby, state } = useBabyContext()
   const { records, addRecord, updateRecord, deleteRecord } = useRecords()
+  const { showToast } = useToast()
   const [showBottleForm, setShowBottleForm] = useState(false)
   const [volume, setVolume] = useState('')
+  const [editingId, setEditingId] = useState<string | null>(null)
+  const [editDuration, setEditDuration] = useState('')
+  const [editVolume, setEditVolume] = useState('')
   const [now, setNow] = useState(Date.now())
 
   const babyRecords = selectedBaby
@@ -142,33 +147,59 @@ export default function Feeding() {
             Nenhuma mamada registrada hoje
           </p>
         )}
-        {todayRecords.map(r => (
+        {todayRecords.map(r => {
+          const isEditing = editingId === r.id
+          return (
           <div key={r.id} className="card" style={{
-            display: 'flex', alignItems: 'center', gap: 12,
+            display: 'flex', flexDirection: 'column', gap: 8,
             opacity: r === activeFeeding ? 0.6 : 1,
           }}>
-            <span style={{ fontSize: '1.5rem' }}>
-              {r.method === 'breast' ? (r.side === 'left' ? '⬅' : '➡') : '🍼'}
-            </span>
-            <div style={{ flex: 1 }}>
-              <div style={{ fontWeight: 600 }}>
-                {r.method === 'breast' ? `Peito ${r.side === 'left' ? 'Esquerdo' : 'Direito'}` : 'Mamadeira'}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+              <span style={{ fontSize: '1.5rem' }}>
+                {r.method === 'breast' ? (r.side === 'left' ? '⬅' : '➡') : '🍼'}
+              </span>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontWeight: 600 }}>
+                  {r.method === 'breast' ? `Peito ${r.side === 'left' ? 'Esquerdo' : 'Direito'}` : 'Mamadeira'}
+                </div>
+                <div className="text-muted">
+                  {formatTime(r.timestamp)}
+                  {r.duration !== undefined && ` · ${formatDuration(r.duration)}`}
+                  {r.volume && ` · ${r.volume}ml`}
+                  {r === activeFeeding && ' · ⏳ em andamento'}
+                </div>
               </div>
-              <div className="text-muted">
-                {formatTime(r.timestamp)}
-                {r.duration !== undefined && ` · ${formatDuration(r.duration)}`}
-                {r.volume && ` · ${r.volume}ml`}
-                {r === activeFeeding && ' · ⏳ em andamento'}
-              </div>
+              <button
+                onClick={() => {
+                  setEditingId(r.id)
+                  setEditDuration(String(r.duration ?? ''))
+                  setEditVolume(String(r.volume ?? ''))
+                }}
+                style={{ width: 32, height: 32, borderRadius: '50%', border: '2px solid var(--lilac-300)', background: 'var(--surface)', fontSize: '0.85rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+              >✏️</button>
+              <button
+                onClick={() => { if (confirm('Remover?')) { deleteRecord(r.id); showToast('Removido!', 'success') } }}
+                style={{ width: 32, height: 32, borderRadius: '50%', background: 'var(--lilac-100)', fontSize: '0.9rem' }}
+              >✕</button>
             </div>
-            <button
-              onClick={() => { if (confirm('Remover?')) deleteRecord(r.id) }}
-              style={{ width: 32, height: 32, borderRadius: '50%', background: 'var(--lilac-100)', fontSize: '0.9rem' }}
-            >
-              ✕
-            </button>
+            {isEditing && (
+              <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                <input type="number" placeholder="Duração (min)" value={editDuration} onChange={e => setEditDuration(e.target.value)}
+                  style={{ flex: 1, padding: '6px 10px', borderRadius: 'var(--radius)', border: '2px solid var(--lilac-100)', fontSize: '0.85rem' }} />
+                {r.method === 'bottle' && (
+                  <input type="number" placeholder="Volume (ml)" value={editVolume} onChange={e => setEditVolume(e.target.value)}
+                    style={{ width: 100, padding: '6px 10px', borderRadius: 'var(--radius)', border: '2px solid var(--lilac-100)', fontSize: '0.85rem' }} />
+                )}
+                <button onClick={() => {
+                  updateRecord({ ...r, duration: editDuration ? Number(editDuration) : undefined, volume: editVolume ? Number(editVolume) : undefined })
+                  setEditingId(null)
+                  showToast('✏️ Atualizado!', 'success')
+                }} className="btn btn-primary btn-sm" style={{ padding: '6px 12px', fontSize: '0.8rem' }}>OK</button>
+                <button onClick={() => setEditingId(null)} className="btn btn-outline btn-sm" style={{ padding: '6px 12px', fontSize: '0.8rem' }}>✕</button>
+              </div>
+            )}
           </div>
-        ))}
+          )})}
       </div>
     </div>
   )

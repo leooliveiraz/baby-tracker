@@ -25,6 +25,11 @@ export default function Reports() {
   const { records } = useRecords()
   const [selectedCategories, setSelectedCategories] = useState<string[]>(['feeding', 'diaper', 'sleep', 'growth', 'health'])
   const [range, setRange] = useState('7')
+  const [customStart, setCustomStart] = useState(() => {
+    const d = new Date(); d.setDate(d.getDate() - 7)
+    return d.toISOString().split('T')[0]
+  })
+  const [customEnd, setCustomEnd] = useState(() => new Date().toISOString().split('T')[0])
 
   if (state.babies.length === 0 || !selectedBaby) {
     return (
@@ -40,6 +45,7 @@ export default function Reports() {
   }
 
   const getDateRange = () => {
+    if (range === 'custom') return { start: new Date(customStart), end: new Date(customEnd + 'T23:59:59') }
     const end = new Date()
     const start = new Date()
     if (range === '7') start.setDate(end.getDate() - 7)
@@ -80,22 +86,37 @@ export default function Reports() {
 
       <div className="card">
         <p style={{ fontWeight: 600, marginBottom: 8, color: 'var(--lilac-900)' }}>Período</p>
-        <div style={{ display: 'flex', gap: 6 }}>
+        <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
           {[
             { key: '7', label: '7 dias' },
             { key: '30', label: '30 dias' },
             { key: '90', label: '3 meses' },
+            { key: 'custom', label: '📆 Custom' },
           ].map(r => (
             <button
               key={r.key}
               onClick={() => setRange(r.key)}
               className={`btn ${range === r.key ? 'btn-primary' : 'btn-outline'}`}
-              style={{ flex: 1, padding: '8px 12px', fontSize: '0.85rem' }}
+              style={{ flex: 1, padding: '8px 12px', fontSize: '0.85rem', minWidth: 70 }}
             >
               {r.label}
             </button>
           ))}
         </div>
+        {range === 'custom' && (
+          <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
+            <div style={{ flex: 1 }}>
+              <label style={{ fontSize: '0.8rem', fontWeight: 600, display: 'block', marginBottom: 4 }}>De</label>
+              <input type="date" value={customStart} onChange={e => setCustomStart(e.target.value)}
+                style={{ width: '100%', padding: '8px 12px', borderRadius: 'var(--radius)', border: '2px solid var(--lilac-100)' }} />
+            </div>
+            <div style={{ flex: 1 }}>
+              <label style={{ fontSize: '0.8rem', fontWeight: 600, display: 'block', marginBottom: 4 }}>Até</label>
+              <input type="date" value={customEnd} onChange={e => setCustomEnd(e.target.value)}
+                style={{ width: '100%', padding: '8px 12px', borderRadius: 'var(--radius)', border: '2px solid var(--lilac-100)' }} />
+            </div>
+          </div>
+        )}
       </div>
 
       <div className="card">

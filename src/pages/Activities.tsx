@@ -13,7 +13,7 @@ const activityTypes = [
 
 export default function Activities() {
   const { selectedBaby, state } = useBabyContext()
-  const { records, addRecord, deleteRecord } = useRecords()
+  const { records, addRecord, updateRecord, deleteRecord } = useRecords()
   const { showToast } = useToast()
 
   const babyRecords = selectedBaby
@@ -25,6 +25,8 @@ export default function Activities() {
 
   const [activeForm, setActiveForm] = useState<string | null>(null)
   const [duration, setDuration] = useState('')
+  const [editingId, setEditingId] = useState<string | null>(null)
+  const [editDuration, setEditDuration] = useState('')
 
   if (state.babies.length === 0 || !selectedBaby) {
     return (
@@ -105,22 +107,39 @@ export default function Activities() {
         )}
         {todayRecords.map(r => {
           const act = activityTypes.find(a => a.key === r.activityType)
+          const isEditing = editingId === r.id
           return (
-            <div key={r.id} className="card" style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-              <span style={{ fontSize: '1.5rem' }}>{act?.icon}</span>
-              <div style={{ flex: 1 }}>
-                <div style={{ fontWeight: 600 }}>{act?.label ?? r.activityType}</div>
-                <div className="text-muted">
-                  {formatTime(r.timestamp)}
-                  {r.duration !== undefined && ` · ${formatDuration(r.duration)}`}
+            <div key={r.id} className="card" style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                <span style={{ fontSize: '1.5rem' }}>{act?.icon}</span>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontWeight: 600 }}>{act?.label ?? r.activityType}</div>
+                  <div className="text-muted">
+                    {formatTime(r.timestamp)}
+                    {r.duration !== undefined && ` · ${formatDuration(r.duration)}`}
+                  </div>
                 </div>
+                <button
+                  onClick={() => { setEditingId(r.id); setEditDuration(String(r.duration ?? '')) }}
+                  style={{ width: 32, height: 32, borderRadius: '50%', border: '2px solid var(--lilac-300)', background: 'var(--surface)', fontSize: '0.85rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                >✏️</button>
+                <button
+                  onClick={() => { if (confirm('Remover?')) { deleteRecord(r.id); showToast('Removido!', 'success') } }}
+                  style={{ width: 32, height: 32, borderRadius: '50%', background: 'var(--lilac-100)', fontSize: '0.9rem' }}
+                >✕</button>
               </div>
-              <button
-                onClick={() => { if (confirm('Remover?')) { deleteRecord(r.id); showToast('Removido!', 'success') } }}
-                style={{ width: 32, height: 32, borderRadius: '50%', background: 'var(--lilac-100)', fontSize: '0.9rem' }}
-              >
-                ✕
-              </button>
+              {isEditing && (
+                <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                  <input type="number" placeholder="Duração (min)" value={editDuration} onChange={e => setEditDuration(e.target.value)}
+                    style={{ flex: 1, padding: '6px 10px', borderRadius: 'var(--radius)', border: '2px solid var(--lilac-100)', fontSize: '0.85rem' }} />
+                  <button onClick={() => {
+                    updateRecord({ ...r, duration: editDuration ? Number(editDuration) : undefined })
+                    setEditingId(null)
+                    showToast('✏️ Atualizado!', 'success')
+                  }} className="btn btn-primary btn-sm" style={{ padding: '6px 12px', fontSize: '0.8rem' }}>OK</button>
+                  <button onClick={() => setEditingId(null)} className="btn btn-outline btn-sm" style={{ padding: '6px 12px', fontSize: '0.8rem' }}>✕</button>
+                </div>
+              )}
             </div>
           )
         })}

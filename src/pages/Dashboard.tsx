@@ -1,6 +1,6 @@
 import { useBabyContext } from '../context/BabyContext'
 import { useRecords, getBabyRecords, type FeedingRecord, type DiaperRecord, type SleepRecord, type ActivityRecord, type GrowthRecord, type VaccineRecord, type AppointmentRecord } from '../context/RecordsContext'
-import { calculateAge, isToday, calcDuration } from '../utils/time'
+import { calculateAge, isToday, calcDuration, formatDuration } from '../utils/time'
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts'
 import { useNavigate } from 'react-router-dom'
 import PhotoAvatar from '../components/ui/PhotoAvatar'
@@ -52,6 +52,15 @@ export default function Dashboard() {
     { label: '🧸', value: activityRecords.length, name: 'Atividades' },
   ]
 
+  // Weekly summary
+  const weekAgo = new Date(); weekAgo.setDate(weekAgo.getDate() - 7)
+  const isThisWeek = (iso: string) => new Date(iso) >= weekAgo
+  const weeklyFeedings = getBabyRecords<FeedingRecord>(records, selectedBaby.id, 'feeding').filter(r => isThisWeek(r.timestamp))
+  const weeklyDiapers = getBabyRecords<DiaperRecord>(records, selectedBaby.id, 'diaper').filter(r => isThisWeek(r.timestamp))
+  const weeklySleeps = getBabyRecords<SleepRecord>(records, selectedBaby.id, 'sleep').filter(r => isThisWeek(r.startTime))
+  const weeklyActivities = getBabyRecords<ActivityRecord>(records, selectedBaby.id, 'activity').filter(r => isThisWeek(r.timestamp))
+  const weeklySleepMin = weeklySleeps.reduce((a, s) => a + calcDuration(s.startTime, s.endTime), 0)
+
   return (
     <div className="container">
       <button className="card" onClick={() => navigate('/babies')} style={{
@@ -70,6 +79,30 @@ export default function Dashboard() {
         <DashboardCard icon="👶" label="Fraldas" value={diaperRecords.length} onClick={() => navigate('/diaper')} />
         <DashboardCard icon="😴" label="Sono" value={`${Math.round((sleepMinutes + activeSleepMinutes) / 60)}h`} onClick={() => navigate('/sleep')} />
         <DashboardCard icon="🧸" label="Atividades" value={activityRecords.length} onClick={() => navigate('/activities')} />
+      </div>
+
+      <div className="card">
+        <h3 style={{ fontSize: '0.95rem', color: 'var(--lilac-900)', marginBottom: 10 }}>
+          📅 Resumo da Semana
+        </h3>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8, textAlign: 'center' }}>
+          <div>
+            <div className="stat-value" style={{ fontSize: '1.1rem' }}>{weeklyFeedings.length}</div>
+            <div className="stat-label">Mamadas</div>
+          </div>
+          <div>
+            <div className="stat-value" style={{ fontSize: '1.1rem' }}>{weeklyDiapers.length}</div>
+            <div className="stat-label">Fraldas</div>
+          </div>
+          <div>
+            <div className="stat-value" style={{ fontSize: '1.1rem' }}>{formatDuration(weeklySleepMin)}</div>
+            <div className="stat-label">Sono</div>
+          </div>
+          <div>
+            <div className="stat-value" style={{ fontSize: '1.1rem' }}>{weeklyActivities.length}</div>
+            <div className="stat-label">Atividades</div>
+          </div>
+        </div>
       </div>
 
       <div className="card" style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 8 }}>
@@ -97,6 +130,16 @@ export default function Dashboard() {
           <span style={{ fontSize: '1.3rem' }}>💾</span>
           <span style={{ fontSize: '0.8rem', fontWeight: 600 }}>Backup</span>
           <span className="text-muted" style={{ fontSize: '0.7rem' }}>Exportar/Importar</span>
+        </button>
+        <button onClick={() => navigate('/timeline')} className="btn btn-outline" style={{ flexDirection: 'column', gap: 2, padding: 12 }}>
+          <span style={{ fontSize: '1.3rem' }}>📋</span>
+          <span style={{ fontSize: '0.8rem', fontWeight: 600 }}>Histórico</span>
+          <span className="text-muted" style={{ fontSize: '0.7rem' }}>Linha do tempo</span>
+        </button>
+        <button onClick={() => navigate('/babysitter')} className="btn btn-outline" style={{ flexDirection: 'column', gap: 2, padding: 12 }}>
+          <span style={{ fontSize: '1.3rem' }}>👶</span>
+          <span style={{ fontSize: '0.8rem', fontWeight: 600 }}>Modo Babá</span>
+          <span className="text-muted" style={{ fontSize: '0.7rem' }}>Botões gigantes</span>
         </button>
       </div>
 

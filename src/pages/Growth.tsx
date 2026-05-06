@@ -19,13 +19,17 @@ const metricConfig: Record<Metric, { label: string; unit: string; color: string;
 
 export default function Growth() {
   const { selectedBaby, state } = useBabyContext()
-  const { records, addRecord, deleteRecord } = useRecords()
+  const { records, addRecord, deleteRecord, updateRecord } = useRecords()
   const { showToast } = useToast()
   const [metric, setMetric] = useState<Metric>('weight')
   const [date, setDate] = useState(new Date().toISOString().split('T')[0])
   const [weight, setWeight] = useState('')
   const [height, setHeight] = useState('')
   const [hc, setHc] = useState('')
+  const [editingId, setEditingId] = useState<string | null>(null)
+  const [editWeight, setEditWeight] = useState('')
+  const [editHeight, setEditHeight] = useState('')
+  const [editHc, setEditHc] = useState('')
 
   const babyRecords = selectedBaby
     ? getBabyRecords<GrowthRecord>(records, selectedBaby.id, 'growth').sort(
@@ -169,24 +173,45 @@ export default function Growth() {
         {babyRecords.map(r => {
           const months = monthsBetween(selectedBaby.birthDate, r.timestamp)
           const oms = getOMSAtMonth(months)
+          const isEditing = editingId === r.id
           return (
-            <div key={r.id} className="card" style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-              <span style={{ fontSize: '1.3rem' }}>📏</span>
-              <div style={{ flex: 1 }}>
-                <div style={{ fontWeight: 600 }}>{formatDate(r.timestamp)}</div>
-                <div className="text-muted" style={{ fontSize: '0.85rem' }}>
-                  {formatAgeMonths(months)}
-                  {r.weight != null && ` · ${r.weight}kg${oms ? ` (P50: ${oms.weightP50}kg)` : ''}`}
-                  {r.height != null && ` · ${r.height}cm${oms ? ` (P50: ${oms.heightP50}cm)` : ''}`}
-                  {r.headCircumference != null && ` · PC ${r.headCircumference}cm`}
+            <div key={r.id} className="card" style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                <span style={{ fontSize: '1.3rem' }}>📏</span>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontWeight: 600 }}>{formatDate(r.timestamp)}</div>
+                  <div className="text-muted" style={{ fontSize: '0.85rem' }}>
+                    {formatAgeMonths(months)}
+                    {r.weight != null && ` · ${r.weight}kg${oms ? ` (P50: ${oms.weightP50}kg)` : ''}`}
+                    {r.height != null && ` · ${r.height}cm${oms ? ` (P50: ${oms.heightP50}cm)` : ''}`}
+                    {r.headCircumference != null && ` · PC ${r.headCircumference}cm`}
+                  </div>
                 </div>
+                <button
+                  onClick={() => { setEditingId(r.id); setEditWeight(String(r.weight ?? '')); setEditHeight(String(r.height ?? '')); setEditHc(String(r.headCircumference ?? '')) }}
+                  style={{ width: 32, height: 32, borderRadius: '50%', border: '2px solid var(--lilac-300)', background: 'var(--surface)', fontSize: '0.85rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                >✏️</button>
+                <button
+                  onClick={() => { if (confirm('Remover?')) { deleteRecord(r.id); showToast('Removido!', 'success') } }}
+                  style={{ width: 32, height: 32, borderRadius: '50%', background: 'var(--lilac-100)', fontSize: '0.9rem' }}
+                >✕</button>
               </div>
-              <button
-                onClick={() => { if (confirm('Remover?')) { deleteRecord(r.id); showToast('Removido!', 'success') } }}
-                style={{ width: 32, height: 32, borderRadius: '50%', background: 'var(--lilac-100)', fontSize: '0.9rem' }}
-              >
-                ✕
-              </button>
+              {isEditing && (
+                <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                  <input type="number" step="0.1" placeholder="Peso (kg)" value={editWeight} onChange={e => setEditWeight(e.target.value)}
+                    style={{ flex: 1, minWidth: 80, padding: '6px 10px', borderRadius: 'var(--radius)', border: '2px solid var(--lilac-100)', fontSize: '0.85rem' }} />
+                  <input type="number" step="0.1" placeholder="Altura (cm)" value={editHeight} onChange={e => setEditHeight(e.target.value)}
+                    style={{ flex: 1, minWidth: 80, padding: '6px 10px', borderRadius: 'var(--radius)', border: '2px solid var(--lilac-100)', fontSize: '0.85rem' }} />
+                  <input type="number" step="0.1" placeholder="PC (cm)" value={editHc} onChange={e => setEditHc(e.target.value)}
+                    style={{ flex: 1, minWidth: 80, padding: '6px 10px', borderRadius: 'var(--radius)', border: '2px solid var(--lilac-100)', fontSize: '0.85rem' }} />
+                  <button onClick={() => {
+                    updateRecord({ ...r, weight: editWeight ? Number(editWeight) : undefined, height: editHeight ? Number(editHeight) : undefined, headCircumference: editHc ? Number(editHc) : undefined })
+                    setEditingId(null)
+                    showToast('✏️ Atualizado!', 'success')
+                  }} className="btn btn-primary btn-sm">OK</button>
+                  <button onClick={() => setEditingId(null)} className="btn btn-outline btn-sm">✕</button>
+                </div>
+              )}
             </div>
           )
         })}

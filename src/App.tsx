@@ -1,6 +1,5 @@
 import { lazy } from 'react'
 import { HashRouter, Routes, Route } from 'react-router-dom'
-import { useRegisterSW } from 'virtual:pwa-register/react'
 import AppShell from './components/layout/AppShell'
 import ToastContainer from './components/ui/ToastContainer'
 import ErrorBoundary from './components/ui/ErrorBoundary'
@@ -12,6 +11,8 @@ import Sleep from './pages/Sleep'
 import Activities from './pages/Activities'
 import Appointments from './pages/Appointments'
 import Backup from './pages/Backup'
+import Timeline from './pages/Timeline'
+import Babysitter from './pages/Babysitter'
 import Login from './pages/Login'
 import Profile from './pages/Profile'
 
@@ -20,24 +21,8 @@ const Health = lazy(() => import('./pages/Health'))
 const Reports = lazy(() => import('./pages/Reports'))
 
 export default function App() {
-  const { needRefresh, updateServiceWorker } = useRegisterSW()
-  const [needRefreshBanner] = needRefresh
-
   return (
     <>
-      {needRefreshBanner && (
-        <div className="update-banner">
-          <span>🆕 Nova versão disponível</span>
-          <div className="update-banner-actions">
-            <button onClick={() => updateServiceWorker(true)} className="update-btn">
-              Atualizar
-            </button>
-            <button onClick={() => updateServiceWorker(false)} className="update-dismiss">
-              ✕
-            </button>
-          </div>
-        </div>
-      )}
       <ToastContainer />
       <ErrorBoundary>
         <HashRouter>
@@ -54,6 +39,8 @@ export default function App() {
               <Route path="/reports" element={<Reports />} />
               <Route path="/appointments" element={<Appointments />} />
               <Route path="/backup" element={<Backup />} />
+              <Route path="/timeline" element={<Timeline />} />
+              <Route path="/babysitter" element={<Babysitter />} />
               <Route path="/login" element={<Login />} />
               <Route path="/profile" element={<Profile />} />
             </Route>

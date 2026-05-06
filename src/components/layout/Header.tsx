@@ -1,5 +1,6 @@
 import { useBabyContext } from '../../context/BabyContext'
 import { useAuth } from '../../context/AuthContext'
+import { useTheme } from '../../context/ThemeContext'
 import { useNavigate } from 'react-router-dom'
 
 interface HeaderProps {
@@ -9,12 +10,13 @@ interface HeaderProps {
 export default function Header({ onAddBaby }: HeaderProps) {
   const { state, selectBaby, selectedBaby } = useBabyContext()
   const { user } = useAuth()
+  const { theme, toggleTheme } = useTheme()
   const navigate = useNavigate()
 
   return (
     <header style={{
-      background: 'var(--white)',
-      borderBottom: '1px solid var(--lilac-100)',
+      background: 'var(--header-bg)',
+      borderBottom: '1px solid var(--border)',
       padding: '12px 16px',
       display: 'flex',
       alignItems: 'center',
@@ -76,12 +78,30 @@ export default function Header({ onAddBaby }: HeaderProps) {
           </button>
 
           <button
+            onClick={toggleTheme}
+            style={{
+              width: 36,
+              height: 36,
+              borderRadius: '50%',
+              background: 'var(--select-bg)',
+              border: '2px solid var(--lilac-300)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: '1rem',
+            }}
+            aria-label={theme === 'dark' ? 'Modo claro' : 'Modo escuro'}
+          >
+            {theme === 'dark' ? '☀️' : '🌙'}
+          </button>
+
+          <button
             onClick={() => navigate(user ? '/profile' : '/login')}
             style={{
               width: 36,
               height: 36,
               borderRadius: '50%',
-              background: user ? 'var(--lilac-100)' : 'var(--white)',
+              background: user ? 'var(--lilac-100)' : 'var(--surface)',
               border: '2px solid var(--lilac-300)',
               display: 'flex',
               alignItems: 'center',

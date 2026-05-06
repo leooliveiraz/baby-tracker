@@ -6,11 +6,37 @@
   --lilac-700: #7B2D8E;
   --lilac-900: #4A1A5C;
   --white: #FFFFFF;
+  --bg: #F8F4FC;
+  --surface: #FFFFFF;
   --text: #2D1B36;
   --text-muted: #8E7A93;
   --radius: 12px;
   --shadow: 0 2px 8px rgba(155, 89, 182, 0.12);
   --shadow-lg: 0 4px 20px rgba(155, 89, 182, 0.18);
+  --border: var(--lilac-100);
+  --header-bg: var(--white);
+  --select-bg: var(--lilac-50);
+  --danger: #E74C3C;
+  --success: #2ECC71;
+}
+
+[data-theme="dark"] {
+  --lilac-50: #2D1B36;
+  --lilac-100: #3D2848;
+  --lilac-300: #9B59B6;
+  --lilac-500: #C39BD3;
+  --lilac-700: #E8D5F0;
+  --lilac-900: #F8F4FC;
+  --white: #1E1E32;
+  --bg: #15152A;
+  --surface: #1E1E32;
+  --text: #E8E0F0;
+  --text-muted: #9B8EB5;
+  --shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 4px 20px rgba(0, 0, 0, 0.4);
+  --border: #3D2848;
+  --header-bg: #1E1E32;
+  --select-bg: #2D1B36;
 }
 
 *, *::before, *::after {
@@ -26,7 +52,7 @@ html {
 
 body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  background: var(--lilac-50);
+  background: var(--bg);
   color: var(--text);
   line-height: 1.5;
   min-height: 100dvh;
@@ -100,7 +126,7 @@ input:focus, select:focus, textarea:focus, button:focus-visible {
 }
 
 .card {
-  background: var(--white);
+  background: var(--surface);
   border-radius: var(--radius);
   box-shadow: var(--shadow);
   padding: 16px;

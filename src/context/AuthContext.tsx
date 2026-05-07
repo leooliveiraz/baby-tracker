@@ -2,7 +2,8 @@ import { createContext, useContext, useEffect, useState, type ReactNode } from '
 import type { User, AuthError } from '@supabase/supabase-js'
 import { supabase, isSupabaseConfigured } from '../lib/supabase'
 
-const redirectUrl = `${window.location.origin}/baby-tracker/`
+const basePath = window.location.pathname.includes('/baby-tracker') ? '/baby-tracker' : ''
+const redirectUrl = window.location.origin + basePath + '/'
 
 interface AuthContextType {
   user: User | null

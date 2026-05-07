@@ -1,5 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 
+import PhotoViewer from './PhotoViewer'
+
 interface Props {
   photo?: string
   size: number
@@ -68,6 +70,7 @@ async function loadWithCache(photo: string): Promise<string> {
 export default function PhotoAvatar({ photo, size, name }: Props) {
   const [src, setSrc] = useState<string | undefined>(photo)
   const [error, setError] = useState(false)
+  const [viewerOpen, setViewerOpen] = useState(false)
   const loaded = useRef(false)
 
   useEffect(() => {
@@ -84,19 +87,24 @@ export default function PhotoAvatar({ photo, size, name }: Props) {
 
   if (src && !error) {
     return (
-      <img
-        src={src}
-        alt={name}
-        onError={() => setError(true)}
-        style={{
-          width: size,
-          height: size,
-          borderRadius: '50%',
-          objectFit: 'cover',
-          border: '2px solid var(--lilac-300)',
-          flexShrink: 0,
-        }}
-      />
+      <>
+        <img
+          src={src}
+          alt={name}
+          onClick={() => setViewerOpen(true)}
+          onError={() => setError(true)}
+          style={{
+            width: size,
+            height: size,
+            borderRadius: '50%',
+            objectFit: 'cover',
+            border: '2px solid var(--lilac-300)',
+            flexShrink: 0,
+            cursor: 'pointer',
+          }}
+        />
+        {viewerOpen && <PhotoViewer src={src} name={name} onClose={() => setViewerOpen(false)} />}
+      </>
     )
   }
 

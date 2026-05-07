@@ -19,7 +19,7 @@ interface PendingInvite {
 
 export default function Profile() {
   const { user, signOut } = useAuth()
-  const { state, loadBabies } = useBabyContext()
+  const { state } = useBabyContext()
   const { records } = useRecords()
   const { pushToCloud, pullFromCloud, isConfigured } = useSync()
   const navigate = useNavigate()
@@ -28,7 +28,6 @@ export default function Profile() {
   const [caregiverEmail, setCaregiverEmail] = useState('')
   const [soundOn, setSoundOn] = useState(isSoundEnabled())
   const [invites, setInvites] = useState<PendingInvite[]>([])
-  const [loadingInvites, setLoadingInvites] = useState(false)
 
   useEffect(() => {
     if (!user) navigate('/login')
@@ -41,7 +40,6 @@ export default function Profile() {
 
   const loadPendingInvites = async () => {
     if (!supabase || !user) return
-    setLoadingInvites(true)
     try {
       const { data } = await supabase
         .from('pending_invites')
@@ -60,7 +58,6 @@ export default function Profile() {
         })))
       }
     } catch { /* ignore */ }
-    setLoadingInvites(false)
   }
 
   const sendInvite = async () => {

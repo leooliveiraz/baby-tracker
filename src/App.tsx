@@ -18,6 +18,7 @@ import Timeline from './pages/Timeline'
 import Babysitter from './pages/Babysitter'
 import Diary from './pages/Diary'
 import Reminders from './pages/Reminders'
+import Milestones from './pages/Milestones'
 import Login from './pages/Login'
 import Profile from './pages/Profile'
 
@@ -60,6 +61,7 @@ export default function App() {
               <Route path="/babysitter" element={<Babysitter />} />
               <Route path="/diary" element={<Diary />} />
               <Route path="/reminders" element={<Reminders />} />
+              <Route path="/milestones" element={<Milestones />} />
               <Route path="/login" element={<Login />} />
               <Route path="/profile" element={<Profile />} />
             </Route>

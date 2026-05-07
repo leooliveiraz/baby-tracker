@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { useAuth } from './AuthContext'
 import { useBabyContext } from './BabyContext'
 import { useRecords, type BabyRecord, type SleepRecord, type VaccineRecord } from './RecordsContext'
@@ -20,6 +20,16 @@ export function useSync() {
   const { state, loadBabies, updateBaby, clearDeletedIds } = useBabyContext()
   const { records, loadRecords } = useRecords()
   const channelRef = useRef<ReturnType<NonNullable<typeof supabase>['channel']> | null>(null)
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
+  const [lastSync, setLastSync] = useState<string | null>(() => {
+    try { return localStorage.getItem('baby-tracker-last-sync') } catch { return null }
+  })
+
+  const updateSyncTime = useCallback(() => {
+    const now = new Date().toISOString()
+    try { localStorage.setItem('baby-tracker-last-sync', now) } catch { /* ignore */ }
+    setLastSync(now)
+  }, [])
 
   const pushToCloud = useCallback(async (u: User) => {
     if (!supabase) throw new Error('Supabase não configurado')
@@ -121,8 +131,9 @@ export function useSync() {
       }
     }
 
+    updateSyncTime()
     return { babies: state.babies.length, records: records.length }
-  }, [state.babies, records, updateBaby])
+  }, [state.babies, records, updateBaby, updateSyncTime])
 
   const pullFromCloud = useCallback(async () => {
     if (!supabase) throw new Error('Supabase não configurado')
@@ -196,9 +207,9 @@ export function useSync() {
 
     loadBabies(mergedBabies, selectedId)
     loadRecords(Array.from(mergedRecords.values()))
-
+    updateSyncTime()
     return { babies: mergedBabies.length, records: mergedRecords.size }
-  }, [loadBabies, loadRecords, state.babies, state.selectedBabyId, records])
+  }, [loadBabies, loadRecords, state.babies, state.selectedBabyId, records, updateSyncTime])
 
   const subscribeToChanges = useCallback(() => {
     if (!supabase) return
@@ -211,10 +222,26 @@ export function useSync() {
       .subscribe()
   }, [pullFromCloud])
 
+  const startPeriodicSync = useCallback(() => {
+    if (intervalRef.current) clearInterval(intervalRef.current)
+    intervalRef.current = setInterval(async () => {
+      try {
+        if (user && supabase) {
+          await pushToCloud(user)
+          await pullFromCloud()
+        }
+      } catch { /* silent */ }
+    }, 300000)
+  }, [pushToCloud, pullFromCloud, user])
+
   const unsubscribe = useCallback(() => {
     if (channelRef.current) {
       supabase?.removeChannel(channelRef.current)
       channelRef.current = null
+    }
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current)
+      intervalRef.current = null
     }
   }, [])
 
@@ -225,8 +252,9 @@ export function useSync() {
     }
     pullFromCloud().catch(() => {})
     subscribeToChanges()
+    startPeriodicSync()
     return () => unsubscribe()
   }, [user?.id])
 
-  return { pushToCloud, pullFromCloud, isConfigured: supabase !== null }
+  return { pushToCloud, pullFromCloud, isConfigured: supabase !== null, lastSync }
 }

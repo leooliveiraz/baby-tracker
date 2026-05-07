@@ -21,7 +21,7 @@ export default function Profile() {
   const { user, signOut } = useAuth()
   const { state } = useBabyContext()
   const { records } = useRecords()
-  const { pushToCloud, pullFromCloud, isConfigured } = useSync()
+  const { pushToCloud, pullFromCloud, isConfigured, lastSync } = useSync()
   const navigate = useNavigate()
   const [syncing, setSyncing] = useState(false)
   const [syncResult, setSyncResult] = useState('')
@@ -262,6 +262,7 @@ export default function Profile() {
           <p>📝 Registros locais: {records.length}</p>
           <p>🔗 Supabase: {isConfigured ? 'Conectado' : 'Não configurado'}</p>
           <p>🔄 Sync automática: {user ? 'Ativa' : 'Inativa'}</p>
+          <p>🕐 Última sincronia: {lastSync ? new Date(lastSync).toLocaleString('pt-BR') : 'Nunca'}</p>
           <p>📦 Versão: {version}</p>
         </div>
       </div>

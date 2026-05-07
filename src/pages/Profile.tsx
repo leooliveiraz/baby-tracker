@@ -51,7 +51,7 @@ export default function Profile() {
         setInvites(data.map((i: Record<string, unknown>) => ({
           id: i.id as string,
           baby_id: i.baby_id as string,
-          baby_name: ((i.babies as Record<string, unknown>[]) ?? [])[0]?.name as string ?? 'Bebê',
+          baby_name: (i.babies as { name?: string } | null)?.name ?? 'Bebê',
           invited_by: i.invited_by as string,
           status: i.status as string,
           created_at: i.created_at as string,
@@ -107,10 +107,9 @@ export default function Profile() {
           invited_by: invite.invited_by,
         })
 
-      setSyncResult(`✅ Agora você é cuidador de ${invite.baby_name}!`)
       loadPendingInvites()
-      // Refresh babies from cloud
-      pullFromCloud()
+      await pullFromCloud()
+      setSyncResult(`✅ Agora você é cuidador de ${invite.baby_name}!`)
     } catch (err) {
       setSyncResult(`❌ Erro: ${err instanceof Error ? err.message : 'Erro'}`)
     }

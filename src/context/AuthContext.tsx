@@ -2,6 +2,8 @@ import { createContext, useContext, useEffect, useState, type ReactNode } from '
 import type { User, AuthError } from '@supabase/supabase-js'
 import { supabase, isSupabaseConfigured } from '../lib/supabase'
 
+const redirectUrl = `${window.location.origin}/baby-tracker/`
+
 interface AuthContextType {
   user: User | null
   loading: boolean
@@ -33,7 +35,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signUp = async (email: string, password: string) => {
     if (!supabase) return { error: new Error('Supabase não configurado') as unknown as AuthError }
-    const { error } = await supabase.auth.signUp({ email, password })
+    const { error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: { emailRedirectTo: redirectUrl },
+    })
     return { error }
   }
 

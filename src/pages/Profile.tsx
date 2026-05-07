@@ -3,13 +3,23 @@ import { useAuth } from '../context/AuthContext'
 import { useBabyContext } from '../context/BabyContext'
 import { useRecords } from '../context/RecordsContext'
 import { useSync } from '../context/useSync'
+import { supabase } from '../lib/supabase'
 import { useNavigate } from 'react-router-dom'
 import { isSoundEnabled, toggleSound } from '../utils/sounds'
 import { version } from '../../package.json'
 
+interface PendingInvite {
+  id: string
+  baby_id: string
+  baby_name?: string
+  invited_by: string
+  status: string
+  created_at: string
+}
+
 export default function Profile() {
   const { user, signOut } = useAuth()
-  const { state } = useBabyContext()
+  const { state, loadBabies } = useBabyContext()
   const { records } = useRecords()
   const { pushToCloud, pullFromCloud, isConfigured } = useSync()
   const navigate = useNavigate()
@@ -17,10 +27,103 @@ export default function Profile() {
   const [syncResult, setSyncResult] = useState('')
   const [caregiverEmail, setCaregiverEmail] = useState('')
   const [soundOn, setSoundOn] = useState(isSoundEnabled())
+  const [invites, setInvites] = useState<PendingInvite[]>([])
+  const [loadingInvites, setLoadingInvites] = useState(false)
 
   useEffect(() => {
     if (!user) navigate('/login')
   }, [user, navigate])
+
+  useEffect(() => {
+    if (!supabase || !user) return
+    loadPendingInvites()
+  }, [user])
+
+  const loadPendingInvites = async () => {
+    if (!supabase || !user) return
+    setLoadingInvites(true)
+    try {
+      const { data } = await supabase
+        .from('pending_invites')
+        .select('*, babies(name)')
+        .eq('invited_email', user.email)
+        .eq('status', 'pending')
+
+      if (data) {
+        setInvites(data.map((i: Record<string, unknown>) => ({
+          id: i.id as string,
+          baby_id: i.baby_id as string,
+          baby_name: ((i.babies as Record<string, unknown>[]) ?? [])[0]?.name as string ?? 'Bebê',
+          invited_by: i.invited_by as string,
+          status: i.status as string,
+          created_at: i.created_at as string,
+        })))
+      }
+    } catch { /* ignore */ }
+    setLoadingInvites(false)
+  }
+
+  const sendInvite = async () => {
+    if (!supabase || !caregiverEmail.trim()) return
+    if (state.babies.length === 0) {
+      setSyncResult('❌ Nenhum bebê para compartilhar')
+      return
+    }
+
+    setSyncing(true)
+    setSyncResult('')
+
+    try {
+      const { error } = await supabase.from('pending_invites').insert(
+        state.babies.map(b => ({
+          baby_id: b.id,
+          invited_email: caregiverEmail.trim(),
+          invited_by: user!.id,
+        }))
+      )
+      if (error) throw error
+      setSyncResult(`✅ Convite enviado para ${caregiverEmail.trim()}!`)
+      setCaregiverEmail('')
+    } catch (err) {
+      setSyncResult(`❌ Erro: ${err instanceof Error ? err.message : 'Erro desconhecido'}`)
+    } finally {
+      setSyncing(false)
+    }
+  }
+
+  const acceptInvite = async (invite: PendingInvite) => {
+    if (!supabase) return
+    try {
+      // Update invite status
+      await supabase
+        .from('pending_invites')
+        .update({ status: 'accepted' })
+        .eq('id', invite.id)
+
+      // Add user as caregiver
+      await supabase
+        .from('baby_caregivers')
+        .insert({
+          baby_id: invite.baby_id,
+          user_id: user!.id,
+          role: 'caregiver',
+          invited_by: invite.invited_by,
+        })
+
+      setSyncResult(`✅ Agora você é cuidador de ${invite.baby_name}!`)
+      loadPendingInvites()
+      // Refresh babies from cloud
+      pullFromCloud()
+    } catch (err) {
+      setSyncResult(`❌ Erro: ${err instanceof Error ? err.message : 'Erro'}`)
+    }
+  }
+
+  const declineInvite = async (id: string) => {
+    if (!supabase) return
+    await supabase.from('pending_invites').update({ status: 'declined' }).eq('id', id)
+    loadPendingInvites()
+  }
 
   if (!user) return null
 
@@ -50,16 +153,32 @@ export default function Profile() {
     }
   }
 
-  const inviteCaregiver = async () => {
-    if (!caregiverEmail.trim()) return
-    setSyncResult(`Convite enviado para ${caregiverEmail} (funcionalidade completa com Supabase Edge Functions)`)
-    setCaregiverEmail('')
-  }
-
   return (
     <div className="container" style={{ maxWidth: 400, margin: '0 auto' }}>
       <h1 className="page-title" style={{ marginBottom: 8 }}>👤 Perfil</h1>
       <p className="text-muted" style={{ marginBottom: 20 }}>{user.email}</p>
+
+      {/* Pending invites */}
+      {invites.length > 0 && (
+        <div className="card" style={{ marginBottom: 16, border: '2px solid var(--lilac-500)' }}>
+          <p style={{ fontWeight: 600, color: 'var(--lilac-900)', marginBottom: 8 }}>
+            📨 Convites pendentes
+          </p>
+          {invites.map(inv => (
+            <div key={inv.id} style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+              <span style={{ fontSize: '1.3rem' }}>👶</span>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontWeight: 600, fontSize: '0.9rem' }}>{inv.baby_name}</div>
+                <div className="text-muted" style={{ fontSize: '0.8rem' }}>
+                  Convidado em {new Date(inv.created_at).toLocaleDateString('pt-BR')}
+                </div>
+              </div>
+              <button onClick={() => acceptInvite(inv)} className="btn btn-primary btn-sm">✅ Aceitar</button>
+              <button onClick={() => declineInvite(inv.id)} className="btn btn-outline btn-sm">✕</button>
+            </div>
+          ))}
+        </div>
+      )}
 
       <div className="card" style={{ marginBottom: 16 }}>
         <p style={{ fontWeight: 600, color: 'var(--lilac-900)', marginBottom: 12 }}>
@@ -88,7 +207,7 @@ export default function Profile() {
           👥 Convidar Cuidador
         </p>
         <p className="text-muted" style={{ fontSize: '0.85rem', marginBottom: 12 }}>
-          Adicione outro cuidador para acompanhar o bebê em tempo real.
+          Adicione outro cuidador para acompanhar o bebê em tempo real. A pessoa precisa ter uma conta no app.
         </p>
         <div style={{ display: 'flex', gap: 8 }}>
           <input
@@ -96,7 +215,9 @@ export default function Profile() {
             value={caregiverEmail} onChange={e => setCaregiverEmail(e.target.value)}
             style={{ flex: 1, padding: '10px 14px', borderRadius: 'var(--radius)', border: '2px solid var(--lilac-100)', fontSize: '0.9rem' }}
           />
-          <button onClick={inviteCaregiver} className="btn btn-primary btn-sm">Convidar</button>
+          <button onClick={sendInvite} disabled={syncing || !caregiverEmail.trim()} className="btn btn-primary btn-sm">
+            Convidar
+          </button>
         </div>
       </div>
 
@@ -140,11 +261,7 @@ export default function Profile() {
           <li>Feche o Safari (remova do multitarefa)</li>
           <li>Abra o app pela <strong>Tela Inicial</strong></li>
         </ol>
-        <button
-          onClick={() => window.location.reload()}
-          className="btn btn-outline btn-sm"
-          style={{ width: '100%' }}
-        >
+        <button onClick={() => window.location.reload()} className="btn btn-outline btn-sm" style={{ width: '100%' }}>
           🔄 Verificar atualização
         </button>
       </div>

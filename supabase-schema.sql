@@ -187,3 +187,31 @@ CREATE POLICY "Users can update own baby photos"
 CREATE POLICY "Users can delete own baby photos"
   ON storage.objects FOR DELETE
   USING (bucket_id = 'baby-photos' AND auth.role() = 'authenticated');
+
+-- =============================================
+-- 7. PENDING INVITES
+-- =============================================
+CREATE TABLE IF NOT EXISTS pending_invites (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  baby_id UUID REFERENCES babies(id) ON DELETE CASCADE NOT NULL,
+  invited_email TEXT NOT NULL,
+  invited_by UUID REFERENCES auth.users(id) NOT NULL,
+  status TEXT DEFAULT 'pending' CHECK (status IN ('pending', 'accepted', 'declined')),
+  created_at TIMESTAMPTZ DEFAULT now()
+);
+
+CREATE INDEX IF NOT EXISTS idx_pending_invites_email ON pending_invites(invited_email);
+
+ALTER TABLE pending_invites ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Invited user can read own invites"
+  ON pending_invites FOR SELECT
+  USING (invited_email = auth.email() OR invited_by = auth.uid());
+
+CREATE POLICY "Creator can insert invites"
+  ON pending_invites FOR INSERT
+  WITH CHECK (invited_by = auth.uid());
+
+CREATE POLICY "Invited user can accept invites"
+  ON pending_invites FOR UPDATE
+  USING (invited_email = auth.email());

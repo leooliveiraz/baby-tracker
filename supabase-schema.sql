@@ -54,7 +54,7 @@ CREATE TABLE IF NOT EXISTS records (
 );
 
 -- =============================================
--- 2. FUNCTIONS (tabelas já existem)
+-- 3. FUNCTIONS (tabelas já existem)
 -- =============================================
 
 -- Usada nas policies de babies: verifica se user é cuidador
@@ -73,6 +73,28 @@ RETURNS BOOLEAN LANGUAGE sql SECURITY DEFINER STABLE AS $$
     SELECT 1 FROM public.babies
     WHERE babies.id = $1 AND babies.created_by = $2
   );
+$$;
+
+-- Aceita um convite: adiciona usuário como caregiver sem RLS
+CREATE OR REPLACE FUNCTION public.accept_invite(invite_id UUID, user_id UUID)
+RETURNS BOOLEAN LANGUAGE plpgsql SECURITY DEFINER AS $$
+DECLARE
+  v_baby_id UUID;
+  v_invited_by UUID;
+BEGIN
+  SELECT baby_id, invited_by INTO v_baby_id, v_invited_by 
+  FROM public.pending_invites 
+  WHERE id = invite_id AND status = 'pending';
+  
+  IF v_baby_id IS NULL THEN RETURN FALSE; END IF;
+  
+  UPDATE public.pending_invites SET status = 'accepted' WHERE id = invite_id;
+  
+  INSERT INTO public.baby_caregivers (baby_id, user_id, role, invited_by)
+  VALUES (v_baby_id, user_id, 'caregiver', v_invited_by);
+  
+  RETURN TRUE;
+END;
 $$;
 
 -- Cria perfil automaticamente no cadastro

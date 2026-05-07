@@ -91,21 +91,12 @@ export default function Profile() {
   const acceptInvite = async (invite: PendingInvite) => {
     if (!supabase) return
     try {
-      // Update invite status
-      await supabase
-        .from('pending_invites')
-        .update({ status: 'accepted' })
-        .eq('id', invite.id)
+      const { error } = await supabase.rpc('accept_invite', {
+        invite_id: invite.id,
+        user_id: user!.id,
+      })
 
-      // Add user as caregiver
-      await supabase
-        .from('baby_caregivers')
-        .insert({
-          baby_id: invite.baby_id,
-          user_id: user!.id,
-          role: 'caregiver',
-          invited_by: invite.invited_by,
-        })
+      if (error) throw error
 
       loadPendingInvites()
       await pullFromCloud()

@@ -85,4 +85,29 @@ describe('Diaper', () => {
     render(<Diaper />)
     expect(screen.getByText('Xixi')).toBeInTheDocument()
   })
+
+  it('opens edit form on click', () => {
+    vi.mocked(getBabyRecords).mockReturnValue([{
+      id: 'd1', babyId: '1', type: 'diaper' as const, timestamp: new Date().toISOString(), diaperType: 'dirty' as const, consistency: 'normal' as const,
+    }])
+    render(<Diaper />)
+    fireEvent.click(screen.getByText('Editar'))
+    expect(screen.getByDisplayValue('💩 Cocô')).toBeInTheDocument()
+  })
+
+  it('edits diaper type', () => {
+    vi.mocked(getBabyRecords).mockReturnValue([{
+      id: 'd1', babyId: '1', type: 'diaper' as const, timestamp: new Date().toISOString(), diaperType: 'dirty' as const, consistency: 'normal' as const,
+    }])
+    const mockUpdate = vi.fn()
+    vi.mocked(useRecords).mockReturnValue({
+      records: [], addRecord: mockAddRecord, updateRecord: mockUpdate, deleteRecord: mockDeleteRecord,
+      loadRecords: vi.fn(), deleteRecordsByBaby: vi.fn(),
+    })
+    render(<Diaper />)
+    fireEvent.click(screen.getByText('Editar'))
+    fireEvent.click(screen.getByText('OK'))
+    expect(mockUpdate).toHaveBeenCalled()
+    expect(mockUpdate.mock.calls[0][0].diaperType).toBe('dirty')
+  })
 })

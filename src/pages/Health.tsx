@@ -23,7 +23,7 @@ const vaccineSchedule: { name: string; doses: { label: string; age: string }[] }
 
 export default function Health() {
   const { selectedBaby, state } = useBabyContext()
-  const { records, addRecord, deleteRecord } = useRecords()
+  const { records, addRecord, updateRecord, deleteRecord } = useRecords()
   const { showToast } = useToast()
   const [tab, setTab] = useState<Tab>('vaccines')
 
@@ -35,6 +35,13 @@ export default function Health() {
   const [feverTime, setFeverTime] = useState(new Date().toISOString().slice(0, 16))
 
   const [notifPermission, setNotifPermission] = useState<NotificationPermission | null>(null)
+  const [editMedId, setEditMedId] = useState<string | null>(null)
+  const [editMedName, setEditMedName] = useState('')
+  const [editMedDose, setEditMedDose] = useState('')
+  const [editMedTime, setEditMedTime] = useState('')
+  const [editFeverId, setEditFeverId] = useState<string | null>(null)
+  const [editFeverTemp, setEditFeverTemp] = useState('')
+  const [editFeverTime, setEditFeverTime] = useState('')
 
   if (state.babies.length === 0 || !selectedBaby) {
     return (
@@ -202,18 +209,41 @@ export default function Health() {
           {medicationRecords.length === 0 && (
             <p className="text-muted" style={{ textAlign: 'center', padding: 24 }}>Nenhum medicamento registrado</p>
           )}
-          {medicationRecords.map(r => (
-            <div key={r.id} className="card" style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-              <span style={{ fontSize: '1.3rem' }}>💊</span>
-              <div style={{ flex: 1 }}>
-                <div style={{ fontWeight: 600 }}>{r.medicationName} - {r.dose}</div>
-                <div className="text-muted">{formatDate(r.timestamp)} às {formatTime(r.timestamp)}</div>
+          {medicationRecords.map(r => {
+            const isEditing = editMedId === r.id
+            return (
+            <div key={r.id} className="card" style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                <span style={{ fontSize: '1.3rem' }}>💊</span>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontWeight: 600 }}>{r.medicationName} - {r.dose}</div>
+                  <div className="text-muted">{formatDate(r.timestamp)} às {formatTime(r.timestamp)}</div>
+                </div>
+                <button onClick={() => { setEditMedId(r.id); setEditMedName(r.medicationName); setEditMedDose(r.dose); setEditMedTime(r.timestamp.slice(0, 16)) }}
+                  style={{ width: 32, height: 32, borderRadius: '50%', border: '2px solid var(--lilac-300)', background: 'var(--surface)', fontSize: '0.85rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                >✏️</button>
+                <button onClick={() => { if (confirm('Remover?')) { deleteRecord(r.id); showToast('Removido!', 'success') } }}
+                  style={{ width: 32, height: 32, borderRadius: '50%', background: 'var(--lilac-100)', fontSize: '0.9rem' }}
+                >✕</button>
               </div>
-              <button onClick={() => { if (confirm('Remover?')) { deleteRecord(r.id); showToast('Removido!', 'success') } }}
-                style={{ width: 32, height: 32, borderRadius: '50%', background: 'var(--lilac-100)', fontSize: '0.9rem' }}
-              >✕</button>
+              {isEditing && (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                  <div style={{ display: 'flex', gap: 6 }}>
+                    <input value={editMedName} onChange={e => setEditMedName(e.target.value)}
+                      style={{ flex: 1, padding: '6px 10px', borderRadius: 'var(--radius)', border: '2px solid var(--lilac-100)', fontSize: '0.85rem' }} />
+                    <input value={editMedDose} onChange={e => setEditMedDose(e.target.value)} style={{ width: 80, padding: '6px 10px', borderRadius: 'var(--radius)', border: '2px solid var(--lilac-100)', fontSize: '0.85rem' }} />
+                    <input type="datetime-local" value={editMedTime} onChange={e => setEditMedTime(e.target.value)}
+                      style={{ flex: 1, padding: '6px 10px', borderRadius: 'var(--radius)', border: '2px solid var(--lilac-100)', fontSize: '0.85rem' }} />
+                  </div>
+                  <div style={{ display: 'flex', gap: 6, justifyContent: 'flex-end' }}>
+                    <button onClick={() => { updateRecord({ ...r, medicationName: editMedName, dose: editMedDose, timestamp: new Date(editMedTime).toISOString() }); setEditMedId(null); showToast('✏️ Atualizado!', 'success') }}
+                      className="btn btn-primary btn-sm" style={{ padding: '4px 12px', fontSize: '0.8rem' }}>OK</button>
+                    <button onClick={() => setEditMedId(null)} className="btn btn-outline btn-sm" style={{ padding: '4px 12px', fontSize: '0.8rem' }}>✕</button>
+                  </div>
+                </div>
+              )}
             </div>
-          ))}
+          )})}
         </div>
       )}
 
@@ -236,25 +266,40 @@ export default function Health() {
           {feverRecords.length === 0 && (
             <p className="text-muted" style={{ textAlign: 'center', padding: 24 }}>Nenhum registro de febre</p>
           )}
-          {feverRecords.map(r => (
-            <div key={r.id} className="card" style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-              <span style={{ fontSize: '1.3rem', color: r.temperature >= 38 ? '#E74C3C' : '#F39C12' }}>
-                🌡
-              </span>
-              <div style={{ flex: 1 }}>
-                <div style={{ fontWeight: 600 }}>
-                  {r.temperature}°C
-                  <span className="text-muted" style={{ fontWeight: 400, marginLeft: 8 }}>
-                    {r.temperature >= 39 ? 'Febre alta' : r.temperature >= 38 ? 'Febre' : 'Subfebril'}
-                  </span>
+          {feverRecords.map(r => {
+            const isEditing = editFeverId === r.id
+            return (
+            <div key={r.id} className="card" style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                <span style={{ fontSize: '1.3rem', color: r.temperature >= 38 ? '#E74C3C' : '#F39C12' }}>🌡</span>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontWeight: 600 }}>
+                    {r.temperature}°C
+                    <span className="text-muted" style={{ fontWeight: 400, marginLeft: 8 }}>
+                      {r.temperature >= 39 ? 'Febre alta' : r.temperature >= 38 ? 'Febre' : 'Subfebril'}
+                    </span>
+                  </div>
+                  <div className="text-muted">{formatDate(r.timestamp)} às {formatTime(r.timestamp)}</div>
                 </div>
-                <div className="text-muted">{formatDate(r.timestamp)} às {formatTime(r.timestamp)}</div>
+                <button onClick={() => { setEditFeverId(r.id); setEditFeverTemp(String(r.temperature)); setEditFeverTime(r.timestamp.slice(0, 16)) }}
+                  style={{ width: 32, height: 32, borderRadius: '50%', border: '2px solid var(--lilac-300)', background: 'var(--surface)', fontSize: '0.85rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                >✏️</button>
+                <button onClick={() => { if (confirm('Remover?')) { deleteRecord(r.id); showToast('Removido!', 'success') } }}
+                  style={{ width: 32, height: 32, borderRadius: '50%', background: 'var(--lilac-100)', fontSize: '0.9rem' }}
+                >✕</button>
               </div>
-              <button onClick={() => { if (confirm('Remover?')) deleteRecord(r.id) }}
-                style={{ width: 32, height: 32, borderRadius: '50%', background: 'var(--lilac-100)', fontSize: '0.9rem' }}
-              >✕</button>
+              {isEditing && (
+                <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+                  <input type="number" step="0.1" value={editFeverTemp} onChange={e => setEditFeverTemp(e.target.value)} style={{ width: 80, padding: '6px 10px', borderRadius: 'var(--radius)', border: '2px solid var(--lilac-100)', fontSize: '0.85rem' }} />
+                  <input type="datetime-local" value={editFeverTime} onChange={e => setEditFeverTime(e.target.value)}
+                    style={{ flex: 1, padding: '6px 10px', borderRadius: 'var(--radius)', border: '2px solid var(--lilac-100)', fontSize: '0.85rem' }} />
+                  <button onClick={() => { updateRecord({ ...r, temperature: Number(editFeverTemp), timestamp: new Date(editFeverTime).toISOString() }); setEditFeverId(null); showToast('✏️ Atualizado!', 'success') }}
+                    className="btn btn-primary btn-sm">OK</button>
+                  <button onClick={() => setEditFeverId(null)} className="btn btn-outline btn-sm">✕</button>
+                </div>
+              )}
             </div>
-          ))}
+          )})}
         </div>
       )}
     </div>

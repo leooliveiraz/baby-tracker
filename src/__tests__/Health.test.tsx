@@ -140,4 +140,24 @@ describe('Health', () => {
 
     expect(mockDeleteRecord).toHaveBeenCalledWith('m1')
   })
+
+  it('edits a medication name and dose', () => {
+    vi.mocked(getBabyRecords).mockReturnValue([{
+      id: 'm1', babyId: '1', type: 'medication' as const,
+      timestamp: '2026-05-06T10:00:00', medicationName: 'Dipirona', dose: '5ml',
+    }])
+    const mockUpdate = vi.fn()
+    vi.mocked(useRecords).mockReturnValue({
+      records: [], addRecord: mockAddRecord, updateRecord: mockUpdate, deleteRecord: mockDeleteRecord,
+      loadRecords: vi.fn(), deleteRecordsByBaby: vi.fn(),
+    })
+    render(<Health />)
+    fireEvent.click(screen.getByText('💊 Medicações'))
+    fireEvent.click(screen.getAllByText('✏️')[0])
+    const nameInput = screen.getAllByDisplayValue('Dipirona')[0] as HTMLInputElement
+    fireEvent.change(nameInput, { target: { value: 'Paracetamol' } })
+    fireEvent.click(screen.getByText('OK'))
+    expect(mockUpdate).toHaveBeenCalled()
+    expect(mockUpdate.mock.calls[0][0].medicationName).toBe('Paracetamol')
+  })
 })

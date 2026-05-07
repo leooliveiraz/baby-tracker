@@ -117,4 +117,26 @@ describe('Appointments', () => {
     fireEvent.click(deleteButtons[0])
     expect(mockDeleteRecord).toHaveBeenCalledWith('a1')
   })
+
+  it('edits an appointment doctor', () => {
+    const futureDate = new Date(Date.now() + 86400000).toISOString()
+    const targetId = 'a1'
+    vi.mocked(getBabyRecords).mockReturnValue([{
+      id: targetId, babyId: '1', type: 'appointment' as const,
+      timestamp: futureDate, doctor: 'Dr. João', specialty: 'Pediatra',
+      appointmentDate: futureDate, location: 'Hospital',
+    }])
+    const mockUpdate = vi.fn()
+    vi.mocked(useRecords).mockReturnValue({
+      records: [], addRecord: mockAddRecord, updateRecord: mockUpdate, deleteRecord: mockDeleteRecord,
+      loadRecords: vi.fn(), deleteRecordsByBaby: vi.fn(),
+    })
+    render(<Appointments />)
+    fireEvent.click(screen.getAllByText('✏️')[0])
+    const doctorInput = screen.getAllByDisplayValue('Dr. João')[0] as HTMLInputElement
+    fireEvent.change(doctorInput, { target: { value: 'Dr. Pedro' } })
+    fireEvent.click(screen.getByText('OK'))
+    expect(mockUpdate).toHaveBeenCalled()
+    expect(mockUpdate.mock.calls[0][0].doctor).toBe('Dr. Pedro')
+  })
 })

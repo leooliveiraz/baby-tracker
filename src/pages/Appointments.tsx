@@ -12,7 +12,7 @@ const specialties = [
 
 export default function Appointments() {
   const { selectedBaby, state } = useBabyContext()
-  const { records, addRecord, deleteRecord } = useRecords()
+  const { records, addRecord, updateRecord, deleteRecord } = useRecords()
   const { showToast } = useToast()
   const [showForm, setShowForm] = useState(false)
   const [doctor, setDoctor] = useState('')
@@ -21,6 +21,13 @@ export default function Appointments() {
   const [appointmentTime, setAppointmentTime] = useState('')
   const [location, setLocation] = useState('')
   const [notes, setNotes] = useState('')
+  const [editingId, setEditingId] = useState<string | null>(null)
+  const [editDoctor, setEditDoctor] = useState('')
+  const [editSpecialty, setEditSpecialty] = useState('')
+  const [editDate, setEditDate] = useState('')
+  const [editTime, setEditTime] = useState('')
+  const [editLocation, setEditLocation] = useState('')
+  const [editNotes, setEditNotes] = useState('')
 
   const babyRecords = selectedBaby
     ? getBabyRecords<AppointmentRecord>(records, selectedBaby.id, 'appointment')
@@ -141,7 +148,7 @@ export default function Appointments() {
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
           <p className="text-muted" style={{ fontWeight: 600 }}>🟢 Próximas ({upcoming.length})</p>
           {upcoming.map(r => (
-            <AppointmentCard key={r.id} record={r} onDelete={deleteRecord} showToast={showToast} />
+            <AppointmentCard key={r.id} record={r} onDelete={deleteRecord} onUpdate={updateRecord} showToast={showToast} />
           ))}
         </div>
       )}
@@ -150,7 +157,7 @@ export default function Appointments() {
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
           <p className="text-muted" style={{ fontWeight: 600 }}>⚪ Realizadas ({past.length})</p>
           {past.map(r => (
-            <AppointmentCard key={r.id} record={r} onDelete={deleteRecord} showToast={showToast} />
+            <AppointmentCard key={r.id} record={r} onDelete={deleteRecord} onUpdate={updateRecord} showToast={showToast} />
           ))}
         </div>
       )}
@@ -158,29 +165,91 @@ export default function Appointments() {
   )
 }
 
-function AppointmentCard({ record, onDelete, showToast }: { record: AppointmentRecord; onDelete: (id: string) => void; showToast: (msg: string, type?: 'success' | 'error' | 'info') => void }) {
+function AppointmentCard({ record, onDelete, onUpdate, showToast }: {
+  record: AppointmentRecord
+  onDelete: (id: string) => void
+  onUpdate: (r: AppointmentRecord) => void
+  showToast: (msg: string, type?: 'success' | 'error' | 'info') => void
+}) {
+  const [editing, setEditing] = useState(false)
+  const [editDoctor, setEditDoctor] = useState('')
+  const [editSpecialty, setEditSpecialty] = useState('')
+  const [editDate, setEditDate] = useState('')
+  const [editTime, setEditTime] = useState('')
+  const [editLocation, setEditLocation] = useState('')
+  const [editNotes, setEditNotes] = useState('')
+
+  const startEdit = () => {
+    setEditing(true)
+    setEditDoctor(record.doctor)
+    setEditSpecialty(record.specialty)
+    const d = new Date(record.appointmentDate)
+    setEditDate(d.toISOString().split('T')[0])
+    setEditTime(d.toTimeString().slice(0, 5))
+    setEditLocation(record.location ?? '')
+    setEditNotes(record.notes ?? '')
+  }
+
+  const saveEdit = () => {
+    const dateTime = editTime ? `${editDate}T${editTime}` : `${editDate}T00:00`
+    onUpdate({ ...record, doctor: editDoctor, specialty: editSpecialty, appointmentDate: new Date(dateTime).toISOString(), location: editLocation || undefined, notes: editNotes || undefined })
+    setEditing(false)
+    showToast('✏️ Atualizado!', 'success')
+  }
+
   const isUpcoming = new Date(record.appointmentDate) >= new Date()
   return (
-    <div className="card" style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-      <span style={{ fontSize: '1.3rem' }}>{isUpcoming ? '🟢' : '⚪'}</span>
-      <div style={{ flex: 1 }}>
-        <div style={{ fontWeight: 600 }}>{record.doctor}</div>
-        <div className="text-muted" style={{ fontSize: '0.85rem' }}>
-          {record.specialty}
-          {record.location && ` · ${record.location}`}
-        </div>
-        <div className="text-muted" style={{ fontSize: '0.8rem' }}>
-          {formatDate(record.appointmentDate)} às {formatTime(record.appointmentDate)}
-        </div>
-        {record.notes && (
-          <div className="text-muted" style={{ fontSize: '0.8rem', marginTop: 2, fontStyle: 'italic' }}>
-            {record.notes}
+    <div className="card" style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+        <span style={{ fontSize: '1.3rem' }}>{isUpcoming ? '🟢' : '⚪'}</span>
+        <div style={{ flex: 1 }}>
+          <div style={{ fontWeight: 600 }}>{record.doctor}</div>
+          <div className="text-muted" style={{ fontSize: '0.85rem' }}>
+            {record.specialty}
+            {record.location && ` · ${record.location}`}
           </div>
-        )}
+          <div className="text-muted" style={{ fontSize: '0.8rem' }}>
+            {formatDate(record.appointmentDate)} às {formatTime(record.appointmentDate)}
+          </div>
+          {record.notes && (
+            <div className="text-muted" style={{ fontSize: '0.8rem', marginTop: 2, fontStyle: 'italic' }}>
+              {record.notes}
+            </div>
+          )}
+        </div>
+        <button onClick={startEdit}
+          style={{ width: 32, height: 32, borderRadius: '50%', border: '2px solid var(--lilac-300)', background: 'var(--surface)', fontSize: '0.85rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+        >✏️</button>
+        <button onClick={() => { if (confirm('Remover consulta?')) { onDelete(record.id); showToast('Removida!', 'success') } }}
+          style={{ width: 32, height: 32, borderRadius: '50%', background: 'var(--lilac-100)', fontSize: '0.9rem' }}
+        >✕</button>
       </div>
-      <button onClick={() => { if (confirm('Remover consulta?')) { onDelete(record.id); showToast('Removida!', 'success') } }}
-        style={{ width: 32, height: 32, borderRadius: '50%', background: 'var(--lilac-100)', fontSize: '0.9rem' }}
-      >✕</button>
+      {editing && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+          <div style={{ display: 'flex', gap: 6 }}>
+            <input value={editDoctor} onChange={e => setEditDoctor(e.target.value)}
+              style={{ flex: 1, padding: '6px 10px', borderRadius: 'var(--radius)', border: '2px solid var(--lilac-100)', fontSize: '0.85rem' }} />
+            <select value={editSpecialty} onChange={e => setEditSpecialty(e.target.value)}
+              style={{ flex: 1, padding: '6px 10px', borderRadius: 'var(--radius)', border: '2px solid var(--lilac-100)', fontSize: '0.85rem' }}>
+              {specialties.map(s => <option key={s} value={s}>{s}</option>)}
+            </select>
+          </div>
+          <div style={{ display: 'flex', gap: 6 }}>
+            <input type="date" value={editDate} onChange={e => setEditDate(e.target.value)}
+              style={{ flex: 1, padding: '6px 10px', borderRadius: 'var(--radius)', border: '2px solid var(--lilac-100)', fontSize: '0.85rem' }} />
+            <input type="time" value={editTime} onChange={e => setEditTime(e.target.value)}
+              style={{ width: 100, padding: '6px 10px', borderRadius: 'var(--radius)', border: '2px solid var(--lilac-100)', fontSize: '0.85rem' }} />
+          </div>
+          <input value={editLocation} onChange={e => setEditLocation(e.target.value)} placeholder="Local"
+            style={{ padding: '6px 10px', borderRadius: 'var(--radius)', border: '2px solid var(--lilac-100)', fontSize: '0.85rem' }} />
+          <textarea value={editNotes} onChange={e => setEditNotes(e.target.value)} rows={2} placeholder="Observações"
+            style={{ padding: '6px 10px', borderRadius: 'var(--radius)', border: '2px solid var(--lilac-100)', fontSize: '0.85rem', resize: 'none' }} />
+          <div style={{ display: 'flex', gap: 6, justifyContent: 'flex-end' }}>
+            <button onClick={saveEdit} className="btn btn-primary btn-sm" style={{ padding: '4px 12px', fontSize: '0.8rem' }}>OK</button>
+            <button onClick={() => setEditing(false)} className="btn btn-outline btn-sm" style={{ padding: '4px 12px', fontSize: '0.8rem' }}>✕</button>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

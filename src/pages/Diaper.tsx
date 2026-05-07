@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useBabyContext } from '../context/BabyContext'
 import { useRecords, getBabyRecords, type DiaperRecord } from '../context/RecordsContext'
-import { formatTime, isToday } from '../utils/time'
+import { formatTime, formatDate, isToday } from '../utils/time'
 import { useToast } from '../context/ToastContext'
 import SwipeableCard from '../components/ui/SwipeableCard'
 import { playDiaperSound, isSoundEnabled } from '../utils/sounds'
@@ -20,6 +20,8 @@ export default function Diaper() {
   const { showToast } = useToast()
   const [editingId, setEditingId] = useState<string | null>(null)
   const [editConsistency, setEditConsistency] = useState<string>('normal')
+  const [editType, setEditType] = useState<DiaperRecord['diaperType']>('wet')
+  const [editTime, setEditTime] = useState('')
 
   const babyRecords = selectedBaby
     ? getBabyRecords<DiaperRecord>(records, selectedBaby.id, 'diaper')
@@ -102,7 +104,7 @@ export default function Diaper() {
 
             {r.diaperType !== 'wet' && editingId !== r.id && (
               <button
-                onClick={() => { setEditingId(r.id); setEditConsistency(r.consistency ?? 'normal') }}
+                onClick={() => { setEditingId(r.id); setEditType(r.diaperType); setEditConsistency(r.consistency ?? 'normal'); setEditTime(r.timestamp.slice(0, 16)) }}
                 className="btn btn-outline btn-sm"
                 style={{ padding: '4px 8px', fontSize: '0.75rem' }}
               >
@@ -111,22 +113,31 @@ export default function Diaper() {
             )}
 
             {editingId === r.id && (
-              <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
-                <select
-                  value={editConsistency}
-                  onChange={e => setEditConsistency(e.target.value)}
-                  style={{
-                    padding: '4px 8px', borderRadius: 'var(--radius)',
-                    border: '2px solid var(--lilac-100)', fontSize: '0.8rem',
-                  }}
-                >
-                  {consistencyOptions.map(c => (
-                    <option key={c} value={c}>{consistencyLabel[c]}</option>
-                  ))}
-                </select>
-                <button onClick={saveConsistency} className="btn btn-primary btn-sm" style={{ padding: '4px 8px', fontSize: '0.75rem' }}>
-                  OK
-                </button>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 6, padding: '8px 0', width: '100%' }}>
+                <div style={{ display: 'flex', gap: 6 }}>
+                  <select value={editType} onChange={e => setEditType(e.target.value as DiaperRecord['diaperType'])}
+                    style={{ flex: 1, padding: '6px 10px', borderRadius: 'var(--radius)', border: '2px solid var(--lilac-100)', fontSize: '0.85rem' }}>
+                    <option value="wet">💦 Xixi</option>
+                    <option value="dirty">💩 Cocô</option>
+                    <option value="both">💦💩 Ambos</option>
+                  </select>
+                  <input type="datetime-local" value={editTime} onChange={e => setEditTime(e.target.value)}
+                    style={{ flex: 2, padding: '6px 10px', borderRadius: 'var(--radius)', border: '2px solid var(--lilac-100)', fontSize: '0.85rem' }} />
+                </div>
+                {editType !== 'wet' && (
+                  <select value={editConsistency} onChange={e => setEditConsistency(e.target.value)}
+                    style={{ padding: '6px 10px', borderRadius: 'var(--radius)', border: '2px solid var(--lilac-100)', fontSize: '0.85rem' }}>
+                    {consistencyOptions.map(c => (<option key={c} value={c}>{consistencyLabel[c]}</option>))}
+                  </select>
+                )}
+                <div style={{ display: 'flex', gap: 6, justifyContent: 'flex-end' }}>
+                  <button onClick={() => {
+                    updateRecord({ ...r, diaperType: editType, consistency: editType !== 'wet' ? editConsistency as DiaperRecord['consistency'] : undefined, timestamp: new Date(editTime).toISOString() })
+                    setEditingId(null)
+                    showToast('✏️ Atualizado!', 'success')
+                  }} className="btn btn-primary btn-sm" style={{ padding: '4px 12px', fontSize: '0.8rem' }}>OK</button>
+                  <button onClick={() => setEditingId(null)} className="btn btn-outline btn-sm" style={{ padding: '4px 12px', fontSize: '0.8rem' }}>✕</button>
+                </div>
               </div>
             )}
 

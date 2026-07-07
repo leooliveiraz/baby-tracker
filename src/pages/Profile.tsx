@@ -270,6 +270,12 @@ export default function Profile() {
       <button onClick={() => { signOut(); navigate('/') }} className="btn btn-outline" style={{ width: '100%', marginTop: 16 }}>
         🚪 Sair da Conta
       </button>
+
+      <p style={{ textAlign: 'center', marginTop: 24, fontSize: '0.8rem' }}>
+        <a href="/baby-tracker/#/privacy" style={{ color: 'var(--text-muted)', textDecoration: 'underline' }}>
+          🔒 Política de Privacidade
+        </a>
+      </p>
     </div>
   )
 }

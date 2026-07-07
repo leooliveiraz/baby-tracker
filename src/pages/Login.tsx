@@ -10,6 +10,7 @@ export default function Login() {
   const [error, setError] = useState('')
   const [mode, setMode] = useState<'login' | 'signup'>('login')
   const [success, setSuccess] = useState('')
+  const [termsAccepted, setTermsAccepted] = useState(false)
 
   if (user) {
     return (
@@ -31,6 +32,11 @@ export default function Login() {
     e.preventDefault()
     setError('')
     setSuccess('')
+
+    if (mode === 'signup' && !termsAccepted) {
+      setError('Você precisa aceitar a Política de Privacidade para criar uma conta.')
+      return
+    }
 
     const fn = mode === 'login' ? signIn : signUp
     const { error } = await fn(email, password)
@@ -70,6 +76,28 @@ export default function Login() {
 
           {error && <p style={{ color: '#E74C3C', fontSize: '0.85rem' }}>{error}</p>}
           {success && <p style={{ color: '#2ECC71', fontSize: '0.85rem' }}>{success}</p>}
+
+          {mode === 'signup' && (
+            <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: '0.8rem', cursor: 'pointer' }}>
+              <input
+                type="checkbox"
+                checked={termsAccepted}
+                onChange={e => setTermsAccepted(e.target.checked)}
+                style={{ accentColor: 'var(--lilac-500)', width: 16, height: 16, cursor: 'pointer' }}
+              />
+              <span>
+                Aceito a{' '}
+                <a
+                  href="/baby-tracker/#/privacy"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{ color: 'var(--lilac-500)', fontWeight: 600, textDecoration: 'underline' }}
+                >
+                  Política de Privacidade
+                </a>
+              </span>
+            </label>
+          )}
 
           <button type="submit" className="btn btn-primary" style={{ width: '100%' }}>
             {mode === 'login' ? 'Entrar' : 'Criar Conta'}

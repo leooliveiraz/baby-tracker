@@ -24,6 +24,7 @@ const Reminders = lazy(() => import('./pages/Reminders'))
 const Milestones = lazy(() => import('./pages/Milestones'))
 const Login = lazy(() => import('./pages/Login'))
 const Profile = lazy(() => import('./pages/Profile'))
+const PrivacyPolicy = lazy(() => import('./pages/PrivacyPolicy'))
 const Reports = lazy(() => import('./pages/Reports'))
 
 export default function App() {
@@ -65,6 +66,7 @@ export default function App() {
                 <Route path="/milestones" element={<Milestones />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/profile" element={<Profile />} />
+                <Route path="/privacy" element={<PrivacyPolicy />} />
               </Route>
             </Routes>
           </Suspense>

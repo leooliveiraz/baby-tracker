@@ -18,6 +18,11 @@ export default function Dashboard() {
         <p className="text-muted" style={{ marginBottom: 24 }}>
           Adicione seu primeiro bebê para começar a acompanhar
         </p>
+        <p style={{ marginTop: 24, fontSize: '0.8rem' }}>
+          <a href="/baby-tracker/#/privacy" style={{ color: 'var(--text-muted)', textDecoration: 'underline' }}>
+            🔒 Política de Privacidade
+          </a>
+        </p>
       </div>
     )
   }
@@ -26,6 +31,11 @@ export default function Dashboard() {
     return (
       <div className="container" style={{ alignItems: 'center', justifyContent: 'center', textAlign: 'center' }}>
         <p className="text-muted">Selecione um bebê no menu superior</p>
+        <p style={{ marginTop: 24, fontSize: '0.8rem' }}>
+          <a href="/baby-tracker/#/privacy" style={{ color: 'var(--text-muted)', textDecoration: 'underline' }}>
+            🔒 Política de Privacidade
+          </a>
+        </p>
       </div>
     )
   }
@@ -171,6 +181,12 @@ export default function Dashboard() {
           </BarChart>
         </ResponsiveContainer>
       </div>
+
+      <p style={{ textAlign: 'center', marginTop: 16, marginBottom: 8, fontSize: '0.8rem' }}>
+        <a href="/baby-tracker/#/privacy" style={{ color: 'var(--text-muted)', textDecoration: 'underline' }}>
+          🔒 Política de Privacidade
+        </a>
+      </p>
     </div>
   )
 }

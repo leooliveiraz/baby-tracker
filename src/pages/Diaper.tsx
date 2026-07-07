@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useBabyContext } from '../context/BabyContext'
 import { useRecords, getBabyRecords, type DiaperRecord } from '../context/RecordsContext'
-import { formatTime, formatDate, isToday } from '../utils/time'
+import { formatTime, isToday } from '../utils/time'
 import { useToast } from '../context/ToastContext'
 import SwipeableCard from '../components/ui/SwipeableCard'
 import { playDiaperSound, isSoundEnabled } from '../utils/sounds'
@@ -51,14 +51,6 @@ export default function Diaper() {
     addRecord(record)
     if (isSoundEnabled()) playDiaperSound()
     showToast(diaperType === 'wet' ? '💦 Xixi registrado!' : diaperType === 'dirty' ? '💩 Cocô registrado!' : 'Registrado!', 'success')
-  }
-
-  const saveConsistency = () => {
-    if (!editingId) return
-    const record = todayRecords.find(r => r.id === editingId)
-    if (!record) return
-    updateRecord({ ...record, consistency: editConsistency as DiaperRecord['consistency'] })
-    setEditingId(null)
   }
 
   return (

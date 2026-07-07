@@ -21,13 +21,6 @@ export default function Appointments() {
   const [appointmentTime, setAppointmentTime] = useState('')
   const [location, setLocation] = useState('')
   const [notes, setNotes] = useState('')
-  const [editingId, setEditingId] = useState<string | null>(null)
-  const [editDoctor, setEditDoctor] = useState('')
-  const [editSpecialty, setEditSpecialty] = useState('')
-  const [editDate, setEditDate] = useState('')
-  const [editTime, setEditTime] = useState('')
-  const [editLocation, setEditLocation] = useState('')
-  const [editNotes, setEditNotes] = useState('')
 
   const babyRecords = selectedBaby
     ? getBabyRecords<AppointmentRecord>(records, selectedBaby.id, 'appointment')

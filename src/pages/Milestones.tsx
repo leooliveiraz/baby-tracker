@@ -18,7 +18,10 @@ function saveCompleted(babyId: string, ids: Set<string>) {
 }
 
 function monthsSinceBirth(birthDate: string): number {
-  return Math.max(0, (Date.now() - new Date(birthDate).getTime()) / (30.44 * 86400000))
+  const d = /^\d{4}-\d{2}-\d{2}$/.test(birthDate)
+    ? new Date(Number(birthDate.slice(0, 4)), Number(birthDate.slice(5, 7)) - 1, Number(birthDate.slice(8, 10)))
+    : new Date(birthDate)
+  return Math.max(0, (Date.now() - d.getTime()) / (30.44 * 86400000))
 }
 
 function MilestoneList({ title, items, completed, onToggle }: {

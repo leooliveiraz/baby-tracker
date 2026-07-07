@@ -140,7 +140,7 @@ export default function Reports() {
           Resumo — {selectedBaby.name}
         </p>
         <p className="text-muted" style={{ marginBottom: 12 }}>
-          {start.toLocaleDateString('pt-BR')} — {end.toLocaleDateString('pt-BR')}
+          {start.toLocaleDateString(undefined)} — {end.toLocaleDateString(undefined)}
         </p>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 8 }}>
           <SummaryCard icon="🥛" label="Mamadas" value={feedings.length} detail={`${feedings.filter(f => f.method === 'breast').length} peito · ${feedings.filter(f => f.method === 'bottle').length} mamadeira`} />
@@ -166,7 +166,7 @@ export default function Reports() {
             <PreviewRow key={r.id} icon={r.method === 'breast' ? (r.side === 'left' ? '⬅' : '➡') : '🍼'}>
               {r.method === 'breast' ? `Peito ${r.side === 'left' ? 'Esquerdo' : 'Direito'}` : 'Mamadeira'}
               <span className="text-muted" style={{ marginLeft: 8, fontSize: '0.8rem' }}>
-                {new Date(r.timestamp).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' })}
+                {new Date(r.timestamp).toLocaleString(undefined, { dateStyle: 'short', timeStyle: 'short' })}
                 {r.duration ? ` · ${r.duration}min` : ''}
                 {r.volume ? ` · ${r.volume}ml` : ''}
               </span>
@@ -182,7 +182,7 @@ export default function Reports() {
             <PreviewRow key={r.id} icon={r.diaperType === 'wet' ? '💦' : r.diaperType === 'dirty' ? '💩' : '💦💩'}>
               {r.diaperType === 'wet' ? 'Xixi' : r.diaperType === 'dirty' ? 'Cocô' : 'Ambos'}
               <span className="text-muted" style={{ marginLeft: 8, fontSize: '0.8rem' }}>
-                {new Date(r.timestamp).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' })}
+                {new Date(r.timestamp).toLocaleString(undefined, { dateStyle: 'short', timeStyle: 'short' })}
                 {r.consistency ? ` · ${r.consistency}` : ''}
               </span>
             </PreviewRow>
@@ -194,9 +194,9 @@ export default function Reports() {
         <SectionPreview icon="😴" title="Sono" count={sleeps.length}>
           {sleeps.slice(0, 10).map(r => (
             <PreviewRow key={r.id} icon={r.endTime ? '😴' : '⏳'}>
-              {new Date(r.startTime).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' })}
+              {new Date(r.startTime).toLocaleString(undefined, { dateStyle: 'short', timeStyle: 'short' })}
               <span className="text-muted" style={{ marginLeft: 8, fontSize: '0.8rem' }}>
-                {r.endTime ? `→ ${new Date(r.endTime).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })} · ${calcDuration(r.startTime, r.endTime)}min` : 'em andamento'}
+                {r.endTime ? `→ ${new Date(r.endTime).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })} · ${calcDuration(r.startTime, r.endTime)}min` : 'em andamento'}
                 {r.location ? ` · ${r.location}` : ''}
               </span>
             </PreviewRow>

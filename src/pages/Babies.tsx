@@ -4,6 +4,7 @@ import { useRecords } from '../context/RecordsContext'
 import BabyFormModal from './BabyFormModal'
 import PhotoAvatar from '../components/ui/PhotoAvatar'
 import { useToast } from '../context/ToastContext'
+import { formatDate } from '../utils/time'
 import type { Baby } from '../context/BabyContext'
 
 export default function Babies() {
@@ -54,7 +55,7 @@ export default function Babies() {
             <div style={{ flex: 1 }}>
               <div style={{ fontWeight: 700, color: 'var(--lilac-900)' }}>{baby.name}</div>
               <div className="text-muted">
-                {new Date(baby.birthDate).toLocaleDateString('pt-BR')}
+                {formatDate(baby.birthDate)}
               </div>
               {(baby.motherName || baby.fatherName) && (
                 <div className="text-muted" style={{ fontSize: '0.75rem', marginTop: 2 }}>

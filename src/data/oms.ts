@@ -58,13 +58,21 @@ function lerp(a: number, b: number, t: number): number {
   return Math.round((a + (b - a) * t) * 10) / 10
 }
 
+function parseDateOnly(dateStr: string): Date {
+  if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
+    const [y, m, d] = dateStr.split('-').map(Number)
+    return new Date(y, m - 1, d)
+  }
+  return new Date(dateStr)
+}
+
 export function monthsSinceBirth(birthDate: string): number {
-  const diff = Date.now() - new Date(birthDate).getTime()
+  const diff = Date.now() - parseDateOnly(birthDate).getTime()
   return Math.max(0, diff / (30.44 * 86400000))
 }
 
 export function monthsBetween(birthDate: string, date: string): number {
-  const diff = new Date(date).getTime() - new Date(birthDate).getTime()
+  const diff = parseDateOnly(date).getTime() - parseDateOnly(birthDate).getTime()
   return Math.max(0, diff / (30.44 * 86400000))
 }
 

@@ -1,9 +1,17 @@
+export function parseLocalDate(dateStr: string): Date {
+  if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
+    const [y, m, d] = dateStr.split('-').map(Number)
+    return new Date(y, m - 1, d)
+  }
+  return new Date(dateStr)
+}
+
 export function formatTime(iso: string): string {
-  return new Date(iso).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
+  return new Date(iso).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })
 }
 
 export function formatDate(iso: string): string {
-  return new Date(iso).toLocaleDateString('pt-BR')
+  return parseLocalDate(iso).toLocaleDateString(undefined)
 }
 
 export function formatDuration(minutes: number): string {
@@ -32,7 +40,7 @@ export function todayRange(): { start: string; end: string } {
 }
 
 export function calculateAge(birthDate: string): string {
-  const diff = Date.now() - new Date(birthDate).getTime()
+  const diff = Date.now() - parseLocalDate(birthDate).getTime()
   const days = Math.floor(diff / 86400000)
   if (days < 30) return `${days} dias`
   const months = Math.floor(days / 30)

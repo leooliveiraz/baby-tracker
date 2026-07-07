@@ -157,7 +157,7 @@ export default function Profile() {
               <div style={{ flex: 1 }}>
                 <div style={{ fontWeight: 600, fontSize: '0.9rem' }}>{inv.baby_name}</div>
                 <div className="text-muted" style={{ fontSize: '0.8rem' }}>
-                  Convidado em {new Date(inv.created_at).toLocaleDateString('pt-BR')}
+                  Convidado em {new Date(inv.created_at).toLocaleDateString(undefined)}
                 </div>
               </div>
               <button onClick={() => acceptInvite(inv)} className="btn btn-primary btn-sm">✅ Aceitar</button>
@@ -262,7 +262,7 @@ export default function Profile() {
           <p>📝 Registros locais: {records.length}</p>
           <p>🔗 Supabase: {isConfigured ? 'Conectado' : 'Não configurado'}</p>
           <p>🔄 Sync automática: {user ? 'Ativa' : 'Inativa'}</p>
-          <p>🕐 Última sincronia: {lastSync ? new Date(lastSync).toLocaleString('pt-BR') : 'Nunca'}</p>
+          <p>🕐 Última sincronia: {lastSync ? new Date(lastSync).toLocaleString(undefined) : 'Nunca'}</p>
           <p>📦 Versão: {version}</p>
         </div>
       </div>

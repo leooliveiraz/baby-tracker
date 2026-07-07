@@ -5,11 +5,11 @@ import { type Baby } from '../context/BabyContext'
 import { calculateAge, calcDuration } from './time'
 
 function fmt(d: Date): string {
-  return d.toLocaleDateString('pt-BR')
+  return d.toLocaleDateString(undefined)
 }
 
 function fmtISO(iso: string): string {
-  return new Date(iso).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' })
+  return new Date(iso).toLocaleString(undefined, { dateStyle: 'short', timeStyle: 'short' })
 }
 
 function escapeCSV(val: unknown): string {

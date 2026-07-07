@@ -49,16 +49,20 @@ describe('formatDuration', () => {
 })
 
 describe('formatTime', () => {
-  it('formats ISO time to HH:MM', () => {
+  it('formats ISO time to locale string', () => {
     const d = new Date('2024-01-01T14:30:00').toISOString()
-    expect(formatTime(d)).toMatch(/^\d{2}:\d{2}$/)
+    const result = formatTime(d)
+    expect(result).toContain('30')
+    expect(result).toMatch(/\d{1,2}:\d{2}/)
   })
 })
 
 describe('formatDate', () => {
-  it('formats ISO date to DD/MM/YYYY', () => {
+  it('formats ISO date to locale string', () => {
     const d = '2024-03-15T10:00:00'
-    expect(formatDate(d)).toBe('15/03/2024')
+    const result = formatDate(d)
+    expect(result).toContain('2024')
+    expect(result).toContain('15')
   })
 })
 

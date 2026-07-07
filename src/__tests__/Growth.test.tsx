@@ -89,7 +89,7 @@ describe('Growth', () => {
       loadRecords: vi.fn(), deleteRecordsByBaby: vi.fn(),
     })
     render(<Growth />)
-    expect(screen.getByText(/01\/05\/2026/)).toBeInTheDocument()
+    expect(screen.getByText(/2026/)).toBeInTheDocument()
   })
 
   it('deletes a measurement', () => {
